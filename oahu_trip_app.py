@@ -5,10 +5,12 @@ import pandas as pd
 st.set_page_config(page_title="Oahu Ultimate Planner", page_icon="🌺", layout="centered")
 
 # --- 1. SETUP DATA ---
+# Define Zones explicitly to ensure they match the matrix
 zones = ['Waikiki', 'Airport', 'West', 'Haleiwa', 'Waimea', 'Kahuku', 'Kualoa', 'Kaneohe', 'Kailua', 'Waimanalo', 'HawaiiKai']
 
-# Travel Time Matrix (Minutes) - FIXED VARIABLE NAME
-time_matrix = pd.DataFrame([
+# Travel Time Matrix (Minutes)
+# This creates the lookup table for drive times
+time_data = [
     [15, 20, 45, 50, 60, 70, 50, 30, 35, 40, 25], # Waikiki
     [20, 0,  25, 40, 50, 60, 40, 25, 30, 40, 35], # Airport
     [45, 25, 0,  40, 50, 65, 50, 45, 50, 60, 55], # West
@@ -20,25 +22,12 @@ time_matrix = pd.DataFrame([
     [35, 30, 50, 60, 70, 55, 35, 20, 0,  15, 30], # Kailua
     [40, 40, 60, 75, 80, 65, 45, 30, 15, 0,  15], # Waimanalo
     [25, 35, 55, 80, 90, 80, 60, 40, 30, 15, 0]   # HawaiiKai
-], index=zones, columns=zones)
-
-# Distance Matrix (Miles) - FIXED VARIABLE NAME
-dist_matrix = pd.DataFrame([
-    [2,  9,  25, 30, 35, 40, 22, 12, 15, 18, 10], # Waikiki
-    [9,  0,  18, 25, 30, 38, 20, 12, 18, 22, 18], # Airport
-    [25, 18, 0,  25, 30, 40, 35, 28, 32, 38, 35], # West
-    [30, 25, 25, 0,  5,  12, 22, 30, 35, 42, 50], # Haleiwa
-    [35, 30, 30, 5,  0,  8,  18, 35, 40, 48, 55], # Waimea
-    [40, 38, 40, 12, 8,  0,  12, 25, 30, 38, 50], # Kahuku
-    [22, 20, 35, 22, 18, 12, 0,  10, 18, 25, 35], # Kualoa
-    [12, 12, 28, 30, 35, 25, 10, 0,  8,  15, 20], # Kaneohe
-    [15, 18, 32, 35, 40, 30, 18, 8,  0,  6,  15], # Kailua
-    [18, 22, 38, 42, 48, 38, 25, 15, 6,  0,  8],  # Waimanalo
-    [10, 18, 35, 50, 55, 50, 35, 20, 15, 8,  0]   # HawaiiKai
-], index=zones, columns=zones)
+]
+time_df = pd.DataFrame(time_data, index=zones, columns=zones)
 
 # Master Database
-data = [
+# Format: Category, Name, Zone, GPS Term, Adult Cost, Child Cost, Website Link
+data_raw = [
     {"Cat": "Act", "Name": "Hotel: Hyatt Place (Rest)", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Link": "https://www.hyatt.com"},
     {"Cat": "Act", "Name": "Start: Depart Hotel", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Link": ""},
     {"Cat": "Act", "Name": "Travel: Flight to Oahu", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Link": ""},
@@ -79,7 +68,7 @@ data = [
     {"Cat": "Food", "Name": "Breakfast: Musubi Cafe Iyasume", "Zone": "Waikiki", "GPS": "Musubi Cafe Iyasume", "Adult": 8, "Child": 8, "Link": ""},
     {"Cat": "Food", "Name": "Breakfast: Kono's North Shore", "Zone": "Haleiwa", "GPS": "Kono's North Shore", "Adult": 18, "Child": 18, "Link": "https://www.konosnorthshore.com"},
     {"Cat": "Food", "Name": "Breakfast: Liliha Bakery", "Zone": "Waikiki", "GPS": "Liliha Bakery", "Adult": 22, "Child": 15, "Link": "https://www.lilihabakery.com"},
-    {"Cat": "Food", "Name": "Breakfast: Cinnamon's (Ilikai)", "Zone": "Waikiki", "GPS": "Cinnmaon's at the Ilikai", "Adult": 25, "Child": 15, "Link": "https://cinnamons808.com"},
+    {"Cat": "Food", "Name": "Breakfast: Cinnamon's (Ilikai)", "Zone": "Waikiki", "GPS": "Cinnamon's at the Ilikai", "Adult": 25, "Child": 15, "Link": "https://cinnamons808.com"},
     {"Cat": "Food", "Name": "Lunch: McDonald's (Kaneohe)", "Zone": "Kaneohe", "GPS": "McDonald's Kaneohe", "Adult": 12, "Child": 10, "Link": ""},
     {"Cat": "Food", "Name": "Lunch: Giovanni's Shrimp Truck", "Zone": "Kahuku", "GPS": "Giovanni's Shrimp Truck", "Adult": 20, "Child": 15, "Link": "https://giovannisshrimptruck.com"},
     {"Cat": "Food", "Name": "Lunch: Seven Brothers Burgers", "Zone": "Kahuku", "GPS": "Seven Brothers Burgers Kahuku", "Adult": 20, "Child": 14, "Link": "https://www.sevenbrothersburgers.com"},
@@ -99,7 +88,7 @@ data = [
     {"Cat": "Food", "Name": "Snack: Dole Whip", "Zone": "Haleiwa", "GPS": "Dole Plantation", "Adult": 9, "Child": 9, "Link": ""},
     {"Cat": "Food", "Name": "Dinner: Seven Brothers", "Zone": "Kahuku", "GPS": "Seven Brothers Burgers Kahuku", "Adult": 20, "Child": 14, "Link": ""}
 ]
-df = pd.DataFrame(data)
+df = pd.DataFrame(data_raw)
 
 # --- 2. SIDEBAR SETTINGS ---
 st.sidebar.header("⚙️ Trip Settings")
@@ -137,12 +126,13 @@ total_food_fun = 0
 prev_zone = "Waikiki"
 slot_counter = 0
 
+# --- MAIN LOOP ---
 for day, slots in days:
     st.markdown(f"### 📅 {day}")
     
     for slot_name in slots:
-        # Determine default value
-        def_val = defaults[slot_counter] if slot_counter < len(defaults) else data[0]['Name']
+        # Determine default value safely
+        def_val = defaults[slot_counter] if slot_counter < len(defaults) else data_raw[0]['Name']
         all_options = df['Name'].tolist()
         
         try:
@@ -160,9 +150,11 @@ for day, slots in days:
         curr_zone = row['Zone']
         gps_target = row['GPS'].replace(" ", "+")
         
-        # Static Calc
-        # Use updated variable name here: time_matrix -> time_df
-        minutes = time_df.loc[prev_zone, curr_zone]
+        # Static Calc (Travel Time) - Wrapped in try/except to prevent crashing
+        try:
+            minutes = time_df.loc[prev_zone, curr_zone]
+        except KeyError:
+            minutes = 0 # Default if zone lookup fails
         
         # Calc Cost (Variable only)
         cost = (row['Adult'] * adults) + (row['Child'] * kids)
