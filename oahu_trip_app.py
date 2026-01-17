@@ -105,7 +105,12 @@ df = pd.DataFrame(data)
 st.sidebar.header("⚙️ Trip Settings")
 adults = st.sidebar.number_input("Adults", 1, 10, 2)
 kids = st.sidebar.number_input("Kids", 0, 10, 3)
-base_cost = st.sidebar.number_input("Fixed Package (Air/Hotel/Car)", value=5344)
+base_cost = st.sidebar.number_input("Fixed Package Cost", value=5344, help="Flight + Hotel + Car")
+
+st.sidebar.markdown("---")
+st.sidebar.header("💰 Savings Tracker")
+saved_pkg = st.sidebar.number_input("Saved for Package", value=5000, step=100)
+saved_fun = st.sidebar.number_input("Saved for Food & Fun", value=1500, step=50)
 
 # --- 3. MAIN APP INTERFACE ---
 st.title("🌺 Oahu Trip App")
@@ -120,7 +125,7 @@ days = [
 ]
 
 defaults = [
-    "Travel: Flight to Oahu", "Hotel: Hyatt Place (Rest)", "Dinner: Hale Koa Luau",
+    "Travel: Flight to Oahu", "Hotel: Hyatt Place (Rest)", "Dinner: Hale Koa Luau (Mil)",
     "Hike: Diamond Head", "Swim: Ala Moana Beach", "Dinner: Yard House",
     "Kualoa: Jurassic Adv", "Lunch: McDonald's (Kaneohe)", "Beach: Lanikai Beach", "Dinner: Seven Brothers",
     "Snorkel: Hanauma Bay", "Adventure: Waimea Bay", "Dinner: Marukame Udon",
@@ -179,18 +184,39 @@ for day, slots in days:
     
     st.divider()
 
-# --- 4. TOTALS (SPLIT VIEW) ---
-st.header("💰 Trip Budget")
+# --- 4. TOTALS (SPLIT VIEW + BUDGET) ---
+st.header("💰 Budget Breakdown")
 
-col1, col2, col3 = st.columns(3)
+# --- PACKAGE BUDGET ---
+c1, c2 = st.columns(2)
+with c1:
+    st.subheader("✈️ Package")
+    st.metric("Total Cost", f"${base_cost:,.0f}")
+    
+    diff_pkg = saved_pkg - base_cost
+    if diff_pkg >= 0:
+        st.success(f"Fully Funded! (+${diff_pkg:,.0f})")
+    else:
+        st.error(f"Need: ${abs(diff_pkg):,.0f}")
 
+# --- FOOD & FUN BUDGET ---
+with c2:
+    st.subheader("🍔 Food & Fun")
+    st.metric("Total Cost", f"${total_food_fun:,.0f}")
+    
+    diff_fun = saved_fun - total_food_fun
+    if diff_fun >= 0:
+        st.success(f"Fully Funded! (+${diff_fun:,.0f})")
+    else:
+        st.error(f"Need: ${abs(diff_fun):,.0f}")
+
+# --- GRAND TOTAL ---
 grand_total = base_cost + total_food_fun
+grand_saved = saved_pkg + saved_fun
+grand_diff = grand_saved - grand_total
 
-with col1:
-    st.metric("Food & Fun", f"${total_food_fun:,.0f}", help="Combined Meals & Activities")
-
-with col2:
-    st.metric("Package", f"${base_cost:,.0f}", help="Fixed Cost: Flight/Hotel/Car")
-
-with col3:
-    st.metric("Grand Total", f"${grand_total:,.0f}", delta="Final")
+st.markdown("---")
+g1, g2, g3 = st.columns(3)
+g1.metric("Grand Total Cost", f"${grand_total:,.0f}")
+g2.metric("Total Saved", f"${grand_saved:,.0f}")
+g3.metric("Total Remaining", f"${grand_diff:,.0f}", delta_color="normal")
