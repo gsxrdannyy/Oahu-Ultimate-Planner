@@ -35,7 +35,6 @@ def save_all(pkg_val, fun_val, itinerary_snapshot):
 # --- 2. SETUP DATA ---
 zones = ['Waikiki', 'Airport', 'West', 'Haleiwa', 'Waimea', 'Kahuku', 'Kualoa', 'Kaneohe', 'Kailua', 'Waimanalo', 'HawaiiKai']
 
-# 11x11 Time Matrix
 time_data = [
     [15, 20, 45, 50, 60, 70, 50, 30, 35, 40, 25], 
     [20, 0,  25, 40, 50, 60, 40, 25, 30, 40, 35], 
@@ -54,33 +53,33 @@ time_df = pd.DataFrame(time_data, index=zones, columns=zones)
 # --- MASTER DATABASE ---
 data_raw = [
     # --- TRAVEL ---
-    {"Cat": "Act", "Name": "Travel: Flight to Oahu (ELP->HNL)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Approx 11 hrs travel (w/ layover)."},
-    {"Cat": "Act", "Name": "Travel: Flight Home (HNL->ELP)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Approx 10 hrs travel (w/ layover)."},
-    {"Cat": "Act", "Name": "Travel: Rental Car Pickup", "Zone": "Airport", "GPS": "Enterprise Rent-A-Car", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Pick up rental vehicle."},
+    {"Cat": "Act", "Name": "Travel: Flight to Oahu (ELP->HNL)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "11 hrs from El Paso."},
+    {"Cat": "Act", "Name": "Travel: Flight Home (HNL->ELP)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "10 hrs to El Paso."},
+    {"Cat": "Act", "Name": "Travel: Rental Car Pickup", "Zone": "Airport", "GPS": "Enterprise Rent-A-Car", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Pick up vehicle."},
     
-    # --- KUALOA (15% Mil Discount) ---
-    {"Cat": "Act", "Name": "Kualoa: Best of Kualoa (Full Day)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 199, "Child": 149, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/packages/", "Desc": "8:30am-3:30pm. 3 tours + Buffet. (15% Mil Disc)."},
+    # --- KUALOA ---
+    {"Cat": "Act", "Name": "Kualoa: Best of Kualoa (Full Day)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 199, "Child": 149, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/packages/", "Desc": "8:30am-3pm. 3 Tours + Lunch."},
     {"Cat": "Act", "Name": "✅ Included in Full Day Package", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Activity continues..."},
-    {"Cat": "Act", "Name": "Kualoa: Jurassic Adv (Tour)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 150, "Child": 75, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/tours/", "Desc": "2.5 Hr Tour. (15% Mil Disc)."},
-    {"Cat": "Act", "Name": "Kualoa: UTV Raptor (Tour)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 165, "Child": 75, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/tours/", "Desc": "Off-road drive. (15% Mil Disc)."},
+    {"Cat": "Act", "Name": "Kualoa: Jurassic Adv (Tour)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 150, "Child": 75, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/tours/", "Desc": "2.5 Hr Tour."},
+    {"Cat": "Act", "Name": "Kualoa: UTV Raptor (Tour)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 165, "Child": 75, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/tours/", "Desc": "Off-road drive."},
 
     # --- GROUPON ---
     {"Cat": "Act", "Name": "Snorkel: Turtle Canyon (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 50, "Child": 40, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/gl-waikiki-turtle-snorkeling-2", "Desc": "Swim with turtles."},
-    {"Cat": "Act", "Name": "Adventure: E-Sea Scooters (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 80, "Child": 80, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/e-sea-diver-31", "Desc": "Electric underwater scooters."},
-    {"Cat": "Act", "Name": "Boat: Glass Bottom Tour (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 35, "Child": 25, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/hawaii-glass-bottom-boats", "Desc": "View reefs dry."},
+    {"Cat": "Act", "Name": "Adventure: E-Sea Scooters (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 80, "Child": 80, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/e-sea-diver-31", "Desc": "Electric scooters."},
+    {"Cat": "Act", "Name": "Boat: Glass Bottom Tour (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 35, "Child": 25, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/hawaii-glass-bottom-boats", "Desc": "Glass bottom boat."},
     {"Cat": "Act", "Name": "Tour: Dolphins & You (Groupon)", "Zone": "West", "GPS": "Waianae Small Boat Harbor", "Adult": 130, "Child": 100, "Discount": 0, "Parking": 0, "Link": "https://www.groupon.com/deals/gl-and-you-creations-1", "Desc": "Swim with dolphins."},
-    {"Cat": "Act", "Name": "Tour: Iruka Dolphin Snorkel (Groupon)", "Zone": "West", "GPS": "Waianae Small Boat Harbor", "Adult": 120, "Child": 90, "Discount": 0, "Parking": 0, "Link": "https://www.groupon.com/deals/iruka-hawaii-dolphin", "Desc": "Dolphin watch & snorkel."},
+    {"Cat": "Act", "Name": "Tour: Iruka Dolphin Snorkel (Groupon)", "Zone": "West", "GPS": "Waianae Small Boat Harbor", "Adult": 120, "Child": 90, "Discount": 0, "Parking": 0, "Link": "https://www.groupon.com/deals/iruka-hawaii-dolphin", "Desc": "Dolphin watch."},
 
     # --- ACTIVITIES ---
     {"Cat": "Act", "Name": "Hotel: Hyatt Place (Return/Rest)", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.hyatt.com", "Desc": "End of Day."},
     {"Cat": "Act", "Name": "Start: Depart Hotel (Hyatt Place)", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Start of Day."},
     {"Cat": "Act", "Name": "Relax: Waikiki Beach", "Zone": "Waikiki", "GPS": "Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Free beach time."},
     {"Cat": "Act", "Name": "Swim: Ala Moana Beach", "Zone": "Waikiki", "GPS": "Ala Moana Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Calm waters."},
-    {"Cat": "Act", "Name": "Hike: Diamond Head", "Zone": "Waikiki", "GPS": "Diamond Head State Monument", "Adult": 10, "Child": 0, "Discount": 1.0, "Parking": 10, "Link": "https://gostateparks.hawaii.gov/diamondhead", "Desc": "Free w/ Vet ID (Check Gate)."},
-    {"Cat": "Act", "Name": "Snorkel: Hanauma Bay", "Zone": "HawaiiKai", "GPS": "Hanauma Bay", "Adult": 25, "Child": 0, "Discount": 1.0, "Parking": 3, "Link": "https://pros9.hnl.info/", "Desc": "Free w/ Vet ID (Check Gate)."},
+    {"Cat": "Act", "Name": "Hike: Diamond Head", "Zone": "Waikiki", "GPS": "Diamond Head State Monument", "Adult": 10, "Child": 0, "Discount": 1.0, "Parking": 10, "Link": "https://gostateparks.hawaii.gov/diamondhead", "Desc": "Free w/ Vet ID."},
+    {"Cat": "Act", "Name": "Snorkel: Hanauma Bay", "Zone": "HawaiiKai", "GPS": "Hanauma Bay", "Adult": 25, "Child": 0, "Discount": 1.0, "Parking": 3, "Link": "https://pros9.hnl.info/", "Desc": "Free w/ Vet ID."},
     {"Cat": "Act", "Name": "Adventure: Waimea Bay", "Zone": "Waimea", "GPS": "Waimea Bay Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Jumping rock."},
     {"Cat": "Act", "Name": "Beach: Lanikai Beach", "Zone": "Kailua", "GPS": "Lanikai Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "White sand."},
-    {"Cat": "Act", "Name": "Explore: Dole Plantation", "Zone": "Haleiwa", "GPS": "Dole Plantation", "Adult": 9, "Child": 7, "Discount": 0.15, "Parking": 0, "Link": "https://doleplantation.com", "Desc": "Pineapple maze (15% Mil Disc)."},
+    {"Cat": "Act", "Name": "Explore: Dole Plantation", "Zone": "Haleiwa", "GPS": "Dole Plantation", "Adult": 9, "Child": 7, "Discount": 0.15, "Parking": 0, "Link": "https://doleplantation.com", "Desc": "Pineapple maze."},
     {"Cat": "Act", "Name": "Snorkel: Kuilima Cove", "Zone": "Kahuku", "GPS": "Kuilima Cove", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Turtle Bay."},
     {"Cat": "Act", "Name": "Snorkel: Shark's Cove", "Zone": "Waimea", "GPS": "Shark's Cove", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "North Shore."},
     {"Cat": "Act", "Name": "Sunset: Ko Olina Lagoons", "Zone": "West", "GPS": "Ko Olina Lagoons", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Sunset spot."},
@@ -98,7 +97,6 @@ data_raw = [
     {"Cat": "Act", "Name": "Museum: Bishop Museum", "Zone": "Waikiki", "GPS": "Bishop Museum", "Adult": 25, "Child": 15, "Discount": 0.20, "Parking": 5, "Link": "", "Desc": "Museum (20% Mil Disc)."},
     {"Cat": "Act", "Name": "Zoo: Honolulu Zoo", "Zone": "Waikiki", "GPS": "Honolulu Zoo", "Adult": 19, "Child": 11, "Discount": 0, "Parking": 6, "Link": "", "Desc": "Zoo."},
     {"Cat": "Act", "Name": "Show: Free Hula Show", "Zone": "Waikiki", "GPS": "Kuhio Beach Hula Mound", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Free sunset hula."},
-    {"Cat": "Act", "Name": "Night: Fireworks", "Zone": "Waikiki", "GPS": "Hilton Hawaiian Village", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Friday Night Fireworks."},
     {"Cat": "Act", "Name": "Night: Stargazing", "Zone": "Haleiwa", "GPS": "Waialua", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "North shore dark skies."},
     {"Cat": "Act", "Name": "(Select Activity)", "Zone": "Waikiki", "GPS": "Waikiki", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "-"},
     
@@ -157,7 +155,7 @@ st.sidebar.header("💾 Controls")
 
 if st.sidebar.button("💾 Save All Changes", type="primary"):
     current_itin_snapshot = []
-    # Save up to 50 slots
+    # Scan 50 slots to ensure all days are captured
     for i in range(50):
         if i in st.session_state:
             current_itin_snapshot.append({"ID": i, "Activity": st.session_state[i]})
@@ -177,60 +175,56 @@ if st.sidebar.button("⚠️ Factory Reset"):
     st.rerun()
 
 # --- 5. MAIN INTERFACE ---
-st.title("🌺 Oahu Trip App")
-st.caption("Live GPS • Smart Itinerary • Veteran Savings 🪖")
+st.title("🌺 Oahu Ultimate Planner")
+st.caption("Live GPS • Smart Geographically Grouped • Veteran Savings 🪖")
 
-# --- DEFINING THE DAYS & SLOTS ---
 days = [
-    # MONDAY: ARRIVAL (Limited Slots)
-    ("Mon 20 (Travel Day)", [
-        "Morning (Travel)", 
-        "Transport (Car Rental)", 
-        "Afternoon (Check-In)", 
-        "Dinner", 
-        "End"
+    # MONDAY: ARRIVAL (5 Slots)
+    ("Mon 20 (Arrival)", [
+        "Morning (Travel)", "Transport (Car Rental)", 
+        "Afternoon (Check-In)", "Dinner (Easy)", "End"
     ]),
     
-    # TUESDAY: FULL DAY (Windward)
+    # TUESDAY: WINDWARD SIDE (8 Slots)
     ("Tue 21 (Windward Side)", [
-        "Start", "Breakfast", "Morning (Temple)", "Lunch", 
-        "Afternoon (Jurassic)", "Dinner", "Night", "End"
+        "Start", "Breakfast", "Morning (Temple)", "Lunch (Kaneohe)", 
+        "Afternoon (Kualoa)", "Dinner", "Night (Stargazing)", "End"
     ]),
     
-    # WEDNESDAY: FULL DAY (North Shore)
+    # WEDNESDAY: NORTH SHORE (8 Slots)
     ("Wed 22 (North Shore)", [
-        "Start", "Breakfast", "Morning (Beach)", "Lunch (Shrimp)", 
-        "Afternoon (Dole)", "Dinner", "Night", "End"
+        "Start", "Breakfast (North)", "Morning (Waimea)", "Lunch (Shrimp)", 
+        "Afternoon (Dole)", "Dinner (North)", "Night", "End"
     ]),
     
-    # THURSDAY: FULL DAY (West/Town)
-    ("Thu 23 (Dolphins/Luau)", [
-        "Start", "Breakfast", "Morning (Dolphins)", "Lunch", 
+    # THURSDAY: WEST SIDE / DOLPHINS (8 Slots)
+    ("Thu 23 (West/Dolphins)", [
+        "Start", "Breakfast (Early)", "Morning (Dolphins)", "Lunch", 
         "Afternoon (Relax)", "Dinner (Luau)", "Night", "End"
     ]),
     
-    # FRIDAY: DEPARTURE (Limited Slots)
+    # FRIDAY: DEPARTURE (5 Slots)
     ("Fri 24 (Departure)", [
-        "Start", "Breakfast", "Morning (Beach)", "Lunch", 
-        "Afternoon (Travel)"
+        "Start", "Breakfast (Waikiki)", "Morning (Beach)", 
+        "Lunch (Local)", "Afternoon (Travel)"
     ])
 ]
 
-# --- SMART GEOGRAPHIC DEFAULTS ---
+# --- SMART GEOGRAPHIC DEFAULTS (Matched to 34 Slots) ---
 factory_defaults = [
-    # MON (5 Slots)
-    "Travel: Flight to Oahu (ELP->HNL)", "Travel: Rental Car Pickup", "Hotel: Hyatt Place (Return/Rest)", "Dinner: Duke's Waikiki", "Hotel: Hyatt Place (Return/Rest)",
+    # MON (5 Slots) - Arrival
+    "Travel: Flight to Oahu (ELP->HNL)", "Travel: Rental Car Pickup", "Hotel: Hyatt Place (Return/Rest)", "Dinner: Yard House", "Hotel: Hyatt Place (Return/Rest)",
     
-    # TUE (8 Slots) - WINDWARD
-    "Start: Depart Hotel (Hyatt Place)", "Breakfast: Hotel Buffet (Included)", "Culture: Byodo-In Temple", "Lunch: McDonald's (Kaneohe)", "Kualoa: Jurassic Adv (Tour)", "Dinner: Maui Brewing Co.", "Night: Stargazing", "Hotel: Hyatt Place (Return/Rest)",
+    # TUE (8 Slots) - Windward (Temple -> Kualoa)
+    "Start: Depart Hotel (Hyatt Place)", "Breakfast: Hotel Buffet (Included)", "Culture: Byodo-In Temple", "Lunch: McDonald's (Kaneohe)", "Kualoa: Jurassic Adv (Tour)", "Beach: Lanikai Beach", "Dinner: Maui Brewing Co.", "Hotel: Hyatt Place (Return/Rest)",
     
-    # WED (8 Slots) - NORTH SHORE
-    "Start: Depart Hotel (Hyatt Place)", "Breakfast: Kono's North Shore", "Adventure: Waimea Bay", "Lunch: Giovanni's Shrimp Truck", "Explore: Dole Plantation", "Dinner: Seven Brothers", "Night: Stargazing", "Hotel: Hyatt Place (Return/Rest)",
+    # WED (8 Slots) - North Shore (Waimea -> Shrimp -> Dole)
+    "Start: Depart Hotel (Hyatt Place)", "Breakfast: Kono's North Shore", "Adventure: Waimea Bay", "Lunch: Giovanni's Shrimp Truck", "Explore: Dole Plantation", "Snorkel: Shark's Cove", "Dinner: Seven Brothers", "Hotel: Hyatt Place (Return/Rest)",
     
-    # THU (8 Slots) - WEST / LUAU
-    "Start: Depart Hotel (Hyatt Place)", "Breakfast: Hotel Buffet (Included)", "Tour: Dolphins & You (Groupon)", "Sunset: Ko Olina Lagoons", "Swim: Ala Moana Beach", "Dinner: Hale Koa Luau", "Show: Free Hula Show", "Hotel: Hyatt Place (Return/Rest)",
+    # THU (8 Slots) - West Side (Dolphins -> Luau)
+    "Start: Depart Hotel (Hyatt Place)", "Breakfast: Leonard's Bakery", "Tour: Dolphins & You (Groupon)", "Lunch: McDonald's (Kaneohe)", "Swim: Ala Moana Beach", "Dinner: Paradise Cove Luau", "Night: Stargazing", "Hotel: Hyatt Place (Return/Rest)",
     
-    # FRI (5 Slots) - DEPARTURE
+    # FRI (5 Slots) - Departure
     "Start: Depart Hotel (Hyatt Place)", "Breakfast: Duke's Waikiki", "Relax: Waikiki Beach", "Lunch: Rainbow Drive-In", "Travel: Flight Home (HNL->ELP)"
 ]
 
@@ -242,6 +236,7 @@ for day_name, slots in days:
     st.markdown(f"### 📅 {day_name}")
     
     for slot_name in slots:
+        # Determine value (DB > Default > Generic)
         if slot_counter in st.session_state.itin_db:
             target_val = st.session_state.itin_db[slot_counter]
         elif slot_counter < len(factory_defaults):
