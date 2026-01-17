@@ -41,6 +41,7 @@ def wipe_itinerary_db():
 # --- 2. SETUP DATA ---
 zones = ['Waikiki', 'Airport', 'West', 'Haleiwa', 'Waimea', 'Kahuku', 'Kualoa', 'Kaneohe', 'Kailua', 'Waimanalo', 'HawaiiKai']
 
+# Time Matrix
 time_data = [
     [15, 20, 45, 50, 60, 70, 50, 30, 35, 40, 25], 
     [20, 0,  25, 40, 50, 60, 40, 25, 30, 40, 35], 
@@ -55,6 +56,22 @@ time_data = [
     [25, 35, 55, 80, 90, 80, 60, 40, 30, 15, 0]   
 ]
 time_df = pd.DataFrame(time_data, index=zones, columns=zones)
+
+# Distance Matrix (Miles)
+dist_data = [
+    [2,  9,  25, 30, 35, 40, 22, 12, 15, 18, 10], 
+    [9,  0,  18, 25, 30, 38, 20, 12, 18, 22, 18], 
+    [25, 18, 0,  25, 30, 40, 35, 28, 32, 38, 35], 
+    [30, 25, 25, 0,  5,  12, 22, 30, 35, 42, 50], 
+    [35, 30, 30, 5,  0,  8,  18, 35, 40, 48, 55], 
+    [40, 38, 40, 12, 8,  0,  12, 25, 30, 38, 50], 
+    [22, 20, 35, 22, 18, 12, 0,  10, 18, 25, 35], 
+    [12, 12, 28, 30, 35, 25, 10, 0,  8,  15, 20], 
+    [15, 18, 32, 35, 40, 30, 18, 8,  0,  6,  15], 
+    [18, 22, 38, 42, 48, 38, 25, 15, 6,  0,  8],  
+    [10, 18, 35, 50, 55, 50, 35, 20, 15, 8,  0]   
+]
+dist_df = pd.DataFrame(dist_data, index=zones, columns=zones)
 
 # --- MASTER DATABASE ---
 data_raw = [
@@ -155,6 +172,11 @@ st.sidebar.header("⚙️ Trip Settings")
 adults = st.sidebar.number_input("Adults", 1, 10, 2)
 kids = st.sidebar.number_input("Kids", 0, 10, 3)
 base_cost = st.sidebar.number_input("Fixed Package Cost", value=5344, help="Flight + Hotel + Car")
+
+st.sidebar.markdown("---")
+st.sidebar.header("⛽ Gas Settings")
+gas_price = st.sidebar.number_input("Gas Price ($/gal)", value=4.85, step=0.10)
+car_mpg = st.sidebar.number_input("Car MPG", value=30, step=5)
 
 st.sidebar.markdown("---")
 st.sidebar.header("💰 Savings Tracker")
@@ -284,6 +306,7 @@ all_active_acts = get_current_selections_for_dupe_check()
 dupe_counts = Counter(all_active_acts)
 
 total_food_fun = 0
+total_miles = 0
 prev_zone = "Waikiki"
 slot_counter = 0
 
@@ -304,7 +327,6 @@ for day_name, slots in days:
         except ValueError:
             default_idx = 0
             
-        # 3 COLUMNS: SELECT, MAP, WEB
         c1, c2, c3 = st.columns([2.8, 0.6, 0.6])
         with c1:
             selected = st.selectbox(f"{slot_name}", all_options, index=default_idx, key=slot_counter, label_visibility="collapsed")
@@ -315,8 +337,10 @@ for day_name, slots in days:
         
         try:
             minutes = time_df.loc[prev_zone, curr_zone]
+            miles = dist_df.loc[prev_zone, curr_zone]
         except:
             minutes = 0
+            miles = 0
         
         discount = row.get('Discount', 0)
         parking = row.get('Parking', 0)
@@ -326,13 +350,12 @@ for day_name, slots in days:
         cost = discounted_price + parking
         
         total_food_fun += cost
+        total_miles += miles
         live_map_url = f"https://www.google.com/maps/dir/?api=1&origin=?q={gps_target}+Hawaii"
         
-        # MAP
         with c2:
             st.link_button("📍 Map", live_map_url, use_container_width=True)
             
-        # WEB
         with c3:
             web_link = row.get('Link', '')
             if web_link:
@@ -364,6 +387,8 @@ for day_name, slots in days:
 # --- 6. TOTALS ---
 st.header("💰 Budget Breakdown")
 
+est_gas_cost = (total_miles / car_mpg) * gas_price
+
 c1, c2 = st.columns(2)
 with c1:
     st.subheader("✈️ Package")
@@ -377,13 +402,17 @@ with c1:
 with c2:
     st.subheader("🍔 Food & Fun")
     st.metric("Total Cost", f"${total_food_fun:,.0f}")
-    diff_fun = saved_fun - total_food_fun
+    st.caption(f"Gas Estimate: ${est_gas_cost:,.2f} ({total_miles} mi)")
+    
+    grand_food_fun = total_food_fun + est_gas_cost
+    diff_fun = saved_fun - grand_food_fun
+    
     if diff_fun >= 0:
         st.success(f"Fully Funded! (+${diff_fun:,.0f})")
     else:
         st.error(f"Need: ${abs(diff_fun):,.0f}")
 
-grand_total = base_cost + total_food_fun
+grand_total = base_cost + grand_food_fun
 grand_saved = saved_pkg + saved_fun
 grand_diff = grand_saved - grand_total
 
