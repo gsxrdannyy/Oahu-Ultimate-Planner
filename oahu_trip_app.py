@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from collections import Counter
 from streamlit_gsheets import GSheetsConnection
 
 # --- APP CONFIGURATION ---
@@ -10,40 +11,29 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 
 def load_data():
     try:
-        # Load Budget
         df_budget = conn.read(worksheet="Sheet1", usecols=[0, 1], ttl=0)
         budget_dict = df_budget.set_index("Category")["Amount"].to_dict()
-        
-        # Load Itinerary
-        # We try-catch this in case the sheet is empty or messed up
         try:
             df_itin = conn.read(worksheet="Itinerary", usecols=[0, 1], ttl=0)
-            # If the sheet is empty, return empty dict so defaults take over
-            if df_itin.empty:
-                return budget_dict, {}
             itin_dict = df_itin.set_index("ID")["Activity"].to_dict()
         except:
             itin_dict = {}
-            
         return budget_dict, itin_dict
     except:
         return {}, {}
 
 def save_all(pkg_val, fun_val, itinerary_snapshot):
-    # Save Budget
     budget_data = pd.DataFrame([
         {"Category": "Package", "Amount": pkg_val},
         {"Category": "FoodFun", "Amount": fun_val}
     ])
     conn.update(worksheet="Sheet1", data=budget_data)
     
-    # Save Itinerary
     itin_data = pd.DataFrame(itinerary_snapshot, columns=["ID", "Activity"])
     conn.update(worksheet="Itinerary", data=itin_data)
     st.cache_data.clear()
 
 def wipe_itinerary_db():
-    # Helper to wipe the DB so defaults can reload
     empty_data = pd.DataFrame(columns=["ID", "Activity"])
     conn.update(worksheet="Itinerary", data=empty_data)
     st.cache_data.clear()
@@ -51,7 +41,6 @@ def wipe_itinerary_db():
 # --- 2. SETUP DATA ---
 zones = ['Waikiki', 'Airport', 'West', 'Haleiwa', 'Waimea', 'Kahuku', 'Kualoa', 'Kaneohe', 'Kailua', 'Waimanalo', 'HawaiiKai']
 
-# 11x11 Time Matrix
 time_data = [
     [15, 20, 45, 50, 60, 70, 50, 30, 35, 40, 25], 
     [20, 0,  25, 40, 50, 60, 40, 25, 30, 40, 35], 
@@ -195,6 +184,7 @@ if st.sidebar.button("⚠️ Factory Reset (Wipe Cloud)"):
 st.title("🌺 Oahu Ultimate Planner")
 st.caption("Live GPS • Smart Geographically Grouped • Veteran Savings 🪖")
 
+# --- DEFINING THE DAYS & SLOTS ---
 days = [
     # MONDAY: ARRIVAL (5 Slots)
     ("Mon 20 (Arrival)", [
@@ -227,8 +217,7 @@ days = [
     ])
 ]
 
-# --- SMART GEOGRAPHIC DEFAULTS ---
-# 34 Items to match exactly 34 slots above
+# --- SMART GEOGRAPHIC DEFAULTS (Matched to 34 Slots) ---
 factory_defaults = [
     # MON (5 Slots) - Arrival
     "Travel: Flight to Oahu (ELP->HNL)", "Travel: Rental Car Pickup", "Hotel: Hyatt Place (Return/Rest)", "Dinner: Duke's Waikiki", "Hotel: Hyatt Place (Return/Rest)",
@@ -245,6 +234,37 @@ factory_defaults = [
     # FRI (5 Slots) - Departure
     "Start: Depart Hotel (Hyatt Place)", "Breakfast: Duke's Waikiki", "Relax: Waikiki Beach", "Lunch: Rainbow Drive-In", "Travel: Flight Home (HNL->ELP)"
 ]
+
+# --- HELPER TO CHECK DUPLICATES ---
+def get_current_selections_for_dupe_check():
+    """Returns list of current active selections to check for duplicates."""
+    current_sel = []
+    temp_counter = 0
+    # Reconstruct what the user sees
+    for day_name, day_slots in days:
+        for _ in day_slots:
+            # 1. User Edit?
+            if temp_counter in st.session_state:
+                val = st.session_state[temp_counter]
+            # 2. Saved in DB?
+            elif temp_counter in st.session_state.itin_db:
+                val = st.session_state.itin_db[temp_counter]
+            # 3. Default?
+            elif temp_counter < len(factory_defaults):
+                val = factory_defaults[temp_counter]
+            else:
+                val = data_raw[0]['Name']
+            
+            # Filter Exclusions
+            if not any(x in val for x in ["Hotel:", "Travel:", "Start:", "End:", "Included"]):
+                current_sel.append(val)
+            
+            temp_counter += 1
+    return current_sel
+
+# Calculate Dupes Once per Rerun
+all_active_acts = get_current_selections_for_dupe_check()
+dupe_counts = Counter(all_active_acts)
 
 total_food_fun = 0
 prev_zone = "Waikiki"
@@ -292,6 +312,11 @@ for day_name, slots in days:
         
         with c2:
             st.link_button("📍 GO", live_map_url, type="primary")
+
+        # DUPLICATE WARNING
+        is_ignored = any(x in selected for x in ["Hotel:", "Travel:", "Start:", "End:", "Included"])
+        if not is_ignored and dupe_counts[selected] > 1:
+            st.error(f"⚠️ Duplicate! You selected this {dupe_counts[selected]} times.")
 
         desc_text = row.get('Desc', '-')
         if desc_text != "-":
