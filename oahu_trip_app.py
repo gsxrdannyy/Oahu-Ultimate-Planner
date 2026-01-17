@@ -7,8 +7,8 @@ st.set_page_config(page_title="Oahu Ultimate Planner", page_icon="🌺", layout=
 # --- 1. SETUP DATA ---
 zones = ['Waikiki', 'Airport', 'West', 'Haleiwa', 'Waimea', 'Kahuku', 'Kualoa', 'Kaneohe', 'Kailua', 'Waimanalo', 'HawaiiKai']
 
-# Travel Time Matrix (Minutes)
-time_df = pd.DataFrame([
+# Travel Time Matrix (Minutes) - FIXED VARIABLE NAME
+time_matrix = pd.DataFrame([
     [15, 20, 45, 50, 60, 70, 50, 30, 35, 40, 25], # Waikiki
     [20, 0,  25, 40, 50, 60, 40, 25, 30, 40, 35], # Airport
     [45, 25, 0,  40, 50, 65, 50, 45, 50, 60, 55], # West
@@ -22,8 +22,8 @@ time_df = pd.DataFrame([
     [25, 35, 55, 80, 90, 80, 60, 40, 30, 15, 0]   # HawaiiKai
 ], index=zones, columns=zones)
 
-# Distance Matrix (Miles)
-dist_df = pd.DataFrame([
+# Distance Matrix (Miles) - FIXED VARIABLE NAME
+dist_matrix = pd.DataFrame([
     [2,  9,  25, 30, 35, 40, 22, 12, 15, 18, 10], # Waikiki
     [9,  0,  18, 25, 30, 38, 20, 12, 18, 22, 18], # Airport
     [25, 18, 0,  25, 30, 40, 35, 28, 32, 38, 35], # West
@@ -125,7 +125,7 @@ days = [
 ]
 
 defaults = [
-    "Travel: Flight to Oahu", "Hotel: Hyatt Place (Rest)", "Dinner: Hale Koa Luau (Mil)",
+    "Travel: Flight to Oahu", "Hotel: Hyatt Place (Rest)", "Dinner: Hale Koa Luau",
     "Hike: Diamond Head", "Swim: Ala Moana Beach", "Dinner: Yard House",
     "Kualoa: Jurassic Adv", "Lunch: McDonald's (Kaneohe)", "Beach: Lanikai Beach", "Dinner: Seven Brothers",
     "Snorkel: Hanauma Bay", "Adventure: Waimea Bay", "Dinner: Marukame Udon",
@@ -161,7 +161,8 @@ for day, slots in days:
         gps_target = row['GPS'].replace(" ", "+")
         
         # Static Calc
-        minutes = time_matrix.loc[prev_zone, curr_zone]
+        # Use updated variable name here: time_matrix -> time_df
+        minutes = time_df.loc[prev_zone, curr_zone]
         
         # Calc Cost (Variable only)
         cost = (row['Adult'] * adults) + (row['Child'] * kids)
