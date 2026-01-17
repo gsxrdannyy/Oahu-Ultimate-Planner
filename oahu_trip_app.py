@@ -59,11 +59,11 @@ time_df = pd.DataFrame(time_data, index=zones, columns=zones)
 # --- MASTER DATABASE ---
 data_raw = [
     # --- TRAVEL ---
-    {"Cat": "Act", "Name": "[Airport] Travel: Flight to Oahu (ELP->HNL)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "11 hrs from El Paso."},
-    {"Cat": "Act", "Name": "[Airport] Travel: Flight Home (HNL->ELP)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "10 hrs to El Paso."},
-    {"Cat": "Act", "Name": "[Airport] Travel: Rental Car Pickup", "Zone": "Airport", "GPS": "Enterprise Rent-A-Car", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Pick up vehicle."},
+    {"Cat": "Act", "Name": "[Airport] Travel: Flight to Oahu (ELP->HNL)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.google.com/travel/flights", "Desc": "11 hrs from El Paso."},
+    {"Cat": "Act", "Name": "[Airport] Travel: Flight Home (HNL->ELP)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.google.com/travel/flights", "Desc": "10 hrs to El Paso."},
+    {"Cat": "Act", "Name": "[Airport] Travel: Rental Car Pickup", "Zone": "Airport", "GPS": "Enterprise Rent-A-Car", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.enterprise.com", "Desc": "Pick up vehicle."},
     
-    # --- NEW AQUARIUMS ---
+    # --- ATTRACTIONS ---
     {"Cat": "Act", "Name": "[Waimanalo] Attraction: Sea Life Park", "Zone": "Waimanalo", "GPS": "Sea Life Park Hawaii", "Adult": 60, "Child": 50, "Discount": 0.58, "Parking": 9, "Link": "https://www.sealifeparkhawaii.com/", "Desc": "Marine park. Huge Mil Disc (~$25)."},
     {"Cat": "Act", "Name": "[Waikiki] Attraction: Waikiki Aquarium", "Zone": "Waikiki", "GPS": "Waikiki Aquarium", "Adult": 12, "Child": 5, "Discount": 0.33, "Parking": 5, "Link": "https://www.waikikiaquarium.org/", "Desc": "Reef exhibits. Mil $8."},
 
@@ -90,52 +90,57 @@ data_raw = [
     {"Cat": "Act", "Name": "[Waimea] Adventure: Waimea Bay", "Zone": "Waimea", "GPS": "Waimea Bay Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Jumping rock."},
     {"Cat": "Act", "Name": "[Kailua] Beach: Lanikai Beach", "Zone": "Kailua", "GPS": "Lanikai Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "White sand."},
     {"Cat": "Act", "Name": "[Haleiwa] Explore: Dole Plantation", "Zone": "Haleiwa", "GPS": "Dole Plantation", "Adult": 9, "Child": 7, "Discount": 0.15, "Parking": 0, "Link": "https://doleplantation.com", "Desc": "Pineapple maze (15% Mil Disc)."},
-    {"Cat": "Act", "Name": "[Kahuku] Snorkel: Kuilima Cove", "Zone": "Kahuku", "GPS": "Kuilima Cove", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Turtle Bay."},
+    {"Cat": "Act", "Name": "[Kahuku] Snorkel: Kuilima Cove", "Zone": "Kahuku", "GPS": "Kuilima Cove", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://turtlebayresort.com", "Desc": "Turtle Bay."},
     {"Cat": "Act", "Name": "[Waimea] Snorkel: Shark's Cove", "Zone": "Waimea", "GPS": "Shark's Cove", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "North Shore."},
-    {"Cat": "Act", "Name": "[West] Sunset: Ko Olina Lagoons", "Zone": "West", "GPS": "Ko Olina Lagoons", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Sunset spot."},
-    {"Cat": "Act", "Name": "[Kailua] Hike: Lanikai Pillbox", "Zone": "Kailua", "GPS": "Lanikai Pillbox", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Ridge hike."},
+    {"Cat": "Act", "Name": "[West] Sunset: Ko Olina Lagoons", "Zone": "West", "GPS": "Ko Olina Lagoons", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://koolina.com/", "Desc": "Sunset spot."},
+    {"Cat": "Act", "Name": "[Kailua] Hike: Lanikai Pillbox", "Zone": "Kailua", "GPS": "Lanikai Pillbox", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.alltrails.com/trail/hawaii/oahu/lanikai-pillbox-trail", "Desc": "Ridge hike."},
     {"Cat": "Act", "Name": "[Kailua] Beach: Kailua Beach Park", "Zone": "Kailua", "GPS": "Kailua Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach park."},
     {"Cat": "Act", "Name": "[Kualoa] Beach: Ka'a'awa Beach", "Zone": "Kualoa", "GPS": "Kaaawa Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Scenic beach."},
     {"Cat": "Act", "Name": "[Waimanalo] Beach: Waimanalo Bay", "Zone": "Waimanalo", "GPS": "Waimanalo Bay Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Longest beach."},
     {"Cat": "Act", "Name": "[Waimanalo] Beach: Makapu'u Tidepools", "Zone": "Waimanalo", "GPS": "Makapuu Tidepools", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Tidepools."},
     {"Cat": "Act", "Name": "[Kualoa] Park: Kualoa Regional", "Zone": "Kualoa", "GPS": "Kualoa Regional Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Chinaman's Hat."},
-    {"Cat": "Act", "Name": "[Kaneohe] Garden: Ho'omaluhia", "Zone": "Kaneohe", "GPS": "Hoomaluhia Botanical Garden", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Botanical gardens."},
+    {"Cat": "Act", "Name": "[Kaneohe] Garden: Ho'omaluhia", "Zone": "Kaneohe", "GPS": "Hoomaluhia Botanical Garden", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.honolulu.gov/parks/hbg/hmbg.html", "Desc": "Botanical gardens."},
     {"Cat": "Act", "Name": "[HawaiiKai] Lookout: Halona Blowhole", "Zone": "HawaiiKai", "GPS": "Halona Blowhole Lookout", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Scenic lookout."},
     {"Cat": "Act", "Name": "[Waikiki] Statue: King Kamehameha", "Zone": "Waikiki", "GPS": "King Kamehameha Statue", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Historic statue."},
-    {"Cat": "Act", "Name": "[Waimea] Hike: Waimea Falls", "Zone": "Waimea", "GPS": "Waimea Valley", "Adult": 25, "Child": 14, "Discount": 0.50, "Parking": 0, "Link": "", "Desc": "Waterfall (50% Mil Disc)."},
-    {"Cat": "Act", "Name": "[Kaneohe] Culture: Byodo-In Temple", "Zone": "Kaneohe", "GPS": "Byodo-In Temple", "Adult": 5, "Child": 3, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Temple."},
-    {"Cat": "Act", "Name": "[Waikiki] Museum: Bishop Museum", "Zone": "Waikiki", "GPS": "Bishop Museum", "Adult": 25, "Child": 15, "Discount": 0.20, "Parking": 5, "Link": "", "Desc": "Museum (20% Mil Disc)."},
-    {"Cat": "Act", "Name": "[Waikiki] Zoo: Honolulu Zoo", "Zone": "Waikiki", "GPS": "Honolulu Zoo", "Adult": 19, "Child": 11, "Discount": 0, "Parking": 6, "Link": "", "Desc": "Zoo."},
-    {"Cat": "Act", "Name": "[Waikiki] Show: Free Hula Show", "Zone": "Waikiki", "GPS": "Kuhio Beach Hula Mound", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Free sunset hula."},
-    {"Cat": "Act", "Name": "[Waikiki] Night: Fireworks", "Zone": "Waikiki", "GPS": "Hilton Hawaiian Village", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Friday Night Fireworks."},
+    {"Cat": "Act", "Name": "[Waimea] Hike: Waimea Falls", "Zone": "Waimea", "GPS": "Waimea Valley", "Adult": 25, "Child": 14, "Discount": 0.50, "Parking": 0, "Link": "https://www.waimeavalley.net/", "Desc": "Waterfall (50% Mil Disc)."},
+    {"Cat": "Act", "Name": "[Kaneohe] Culture: Byodo-In Temple", "Zone": "Kaneohe", "GPS": "Byodo-In Temple", "Adult": 5, "Child": 3, "Discount": 0, "Parking": 0, "Link": "https://byodo-in.com/", "Desc": "Temple."},
+    {"Cat": "Act", "Name": "[Waikiki] Museum: Bishop Museum", "Zone": "Waikiki", "GPS": "Bishop Museum", "Adult": 25, "Child": 15, "Discount": 0.20, "Parking": 5, "Link": "https://www.bishopmuseum.org/", "Desc": "Museum (20% Mil Disc)."},
+    {"Cat": "Act", "Name": "[Waikiki] Zoo: Honolulu Zoo", "Zone": "Waikiki", "GPS": "Honolulu Zoo", "Adult": 19, "Child": 11, "Discount": 0, "Parking": 6, "Link": "https://www.honoluluzoo.org/", "Desc": "Zoo."},
+    {"Cat": "Act", "Name": "[Waikiki] Show: Free Hula Show", "Zone": "Waikiki", "GPS": "Kuhio Beach Hula Mound", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.kuhiobeachhulas.com/", "Desc": "Free sunset hula."},
+    {"Cat": "Act", "Name": "[Waikiki] Night: Fireworks", "Zone": "Waikiki", "GPS": "Hilton Hawaiian Village", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.hiltonhawaiianvillage.com/resort-experiences/entertainment-and-events", "Desc": "Friday Night Fireworks."},
     {"Cat": "Act", "Name": "[Haleiwa] Night: Stargazing", "Zone": "Haleiwa", "GPS": "Waialua", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "North shore dark skies."},
     {"Cat": "Act", "Name": "(Select Activity)", "Zone": "Waikiki", "GPS": "Waikiki", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "-"},
     
     # --- FOOD ---
     {"Cat": "Food", "Name": "[Waikiki] Breakfast: Hotel Buffet", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Included."},
-    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Leonard's Bakery", "Zone": "Waikiki", "GPS": "Leonard's Bakery", "Adult": 10, "Child": 10, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Malasadas."},
+    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Leonard's Bakery", "Zone": "Waikiki", "GPS": "Leonard's Bakery", "Adult": 10, "Child": 10, "Discount": 0, "Parking": 0, "Link": "https://www.leonardshawaii.com/", "Desc": "Malasadas."},
     {"Cat": "Food", "Name": "[Waikiki] Breakfast: Duke's Waikiki", "Zone": "Waikiki", "GPS": "Duke's Waikiki", "Adult": 29, "Child": 16, "Discount": 0, "Parking": 6, "Link": "https://www.dukeswaikiki.com", "Desc": "Oceanfront."},
     {"Cat": "Food", "Name": "[Waikiki] Breakfast: Eggs 'n Things", "Zone": "Waikiki", "GPS": "Eggs 'n Things Saratoga", "Adult": 25, "Child": 15, "Discount": 0.10, "Parking": 0, "Link": "https://eggsnthings.com", "Desc": "Pancakes (10% Disc)."},
-    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Musubi Cafe Iyasume", "Zone": "Waikiki", "GPS": "Musubi Cafe Iyasume", "Adult": 8, "Child": 8, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Musubis."},
+    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Musubi Cafe Iyasume", "Zone": "Waikiki", "GPS": "Musubi Cafe Iyasume", "Adult": 8, "Child": 8, "Discount": 0, "Parking": 0, "Link": "https://iyasumehawaii.com/", "Desc": "Musubis."},
     {"Cat": "Food", "Name": "[Waikiki] Breakfast: Liliha Bakery", "Zone": "Waikiki", "GPS": "Liliha Bakery", "Adult": 22, "Child": 15, "Discount": 0, "Parking": 0, "Link": "https://www.lilihabakery.com", "Desc": "Coco puffs."},
     {"Cat": "Food", "Name": "[Waikiki] Breakfast: Cinnamon's", "Zone": "Waikiki", "GPS": "Cinnamon's at the Ilikai", "Adult": 25, "Child": 15, "Discount": 0, "Parking": 1, "Link": "https://cinnamons808.com", "Desc": "Pancakes."},
     {"Cat": "Food", "Name": "[Waikiki] Dinner: Hale Koa Luau", "Zone": "Waikiki", "GPS": "Hale Koa Hotel", "Adult": 86, "Child": 45, "Discount": 0, "Parking": 15, "Link": "https://www.halekoa.com", "Desc": "Mil Only Luau (Net Price)."},
     {"Cat": "Food", "Name": "[Waikiki] Dinner: Duke's Waikiki", "Zone": "Waikiki", "GPS": "Duke's Waikiki", "Adult": 50, "Child": 25, "Discount": 0, "Parking": 6, "Link": "https://www.dukeswaikiki.com", "Desc": "Dinner."},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Yard House", "Zone": "Waikiki", "GPS": "Yard House Waikiki", "Adult": 40, "Child": 20, "Discount": 0.10, "Parking": 0, "Link": "", "Desc": "Fusion (10% Mil Disc)."},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Marukame Udon", "Zone": "Waikiki", "GPS": "Marukame Udon Waikiki", "Adult": 18, "Child": 12, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Udon."},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Rainbow Drive-In", "Zone": "Waikiki", "GPS": "Rainbow Drive-In", "Adult": 18, "Child": 14, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Plate lunch."},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Maui Brewing Co.", "Zone": "Waikiki", "GPS": "Maui Brewing Co Waikiki", "Adult": 35, "Child": 18, "Discount": 0, "Parking": 6, "Link": "", "Desc": "Brewpub."},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Paia Fish Market", "Zone": "Waikiki", "GPS": "Paia Fish Market Waikiki", "Adult": 28, "Child": 18, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Fish."},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Cheesecake Factory", "Zone": "Waikiki", "GPS": "The Cheesecake Factory Honolulu", "Adult": 35, "Child": 18, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Dinner."},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Zippy's", "Zone": "Waikiki", "GPS": "Zippy's Kapahulu", "Adult": 20, "Child": 14, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Diner."},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Yard House", "Zone": "Waikiki", "GPS": "Yard House Waikiki", "Adult": 40, "Child": 20, "Discount": 0.10, "Parking": 0, "Link": "https://www.yardhouse.com/locations/hi/honolulu/waikiki-beach-walk/8316", "Desc": "Fusion (10% Mil Disc)."},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Marukame Udon", "Zone": "Waikiki", "GPS": "Marukame Udon Waikiki", "Adult": 18, "Child": 12, "Discount": 0, "Parking": 0, "Link": "https://www.marugameudon.com/", "Desc": "Udon."},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Rainbow Drive-In", "Zone": "Waikiki", "GPS": "Rainbow Drive-In", "Adult": 18, "Child": 14, "Discount": 0, "Parking": 0, "Link": "https://rainbowdrivein.com/", "Desc": "Plate lunch."},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Maui Brewing Co.", "Zone": "Waikiki", "GPS": "Maui Brewing Co Waikiki", "Adult": 35, "Child": 18, "Discount": 0, "Parking": 6, "Link": "https://mauibrewingco.com/waikiki/", "Desc": "Brewpub."},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Paia Fish Market", "Zone": "Waikiki", "GPS": "Paia Fish Market Waikiki", "Adult": 28, "Child": 18, "Discount": 0, "Parking": 0, "Link": "https://paiafishmarket.com/", "Desc": "Fish."},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Cheesecake Factory", "Zone": "Waikiki", "GPS": "The Cheesecake Factory Honolulu", "Adult": 35, "Child": 18, "Discount": 0, "Parking": 0, "Link": "https://www.thecheesecakefactory.com/locations/honolulu-hi", "Desc": "Dinner."},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Zippy's", "Zone": "Waikiki", "GPS": "Zippy's Kapahulu", "Adult": 20, "Child": 14, "Discount": 0, "Parking": 0, "Link": "https://www.zippys.com/", "Desc": "Diner."},
+    
     {"Cat": "Food", "Name": "[Haleiwa] Breakfast: Kono's", "Zone": "Haleiwa", "GPS": "Kono's North Shore", "Adult": 18, "Child": 18, "Discount": 0.10, "Parking": 0, "Link": "https://www.konosnorthshore.com", "Desc": "Pork (10% Disc)."},
-    {"Cat": "Food", "Name": "[Haleiwa] Snack: Matsumoto Shave Ice", "Zone": "Haleiwa", "GPS": "Matsumoto Shave Ice", "Adult": 8, "Child": 8, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Shave Ice."},
-    {"Cat": "Food", "Name": "[Haleiwa] Snack: Dole Whip", "Zone": "Haleiwa", "GPS": "Dole Plantation", "Adult": 9, "Child": 9, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Dole Whip."},
+    {"Cat": "Food", "Name": "[Haleiwa] Snack: Matsumoto Shave Ice", "Zone": "Haleiwa", "GPS": "Matsumoto Shave Ice", "Adult": 8, "Child": 8, "Discount": 0, "Parking": 0, "Link": "https://matsumotoshaveice.com/", "Desc": "Shave Ice."},
+    {"Cat": "Food", "Name": "[Haleiwa] Snack: Dole Whip", "Zone": "Haleiwa", "GPS": "Dole Plantation", "Adult": 9, "Child": 9, "Discount": 0, "Parking": 0, "Link": "https://doleplantation.com", "Desc": "Dole Whip."},
+    
     {"Cat": "Food", "Name": "[Kahuku] Lunch: Giovanni's Shrimp", "Zone": "Kahuku", "GPS": "Giovanni's Shrimp Truck", "Adult": 20, "Child": 15, "Discount": 0, "Parking": 2, "Link": "https://giovannisshrimptruck.com", "Desc": "Shrimp (Cash only)."},
-    {"Cat": "Food", "Name": "[Kahuku] Dinner: Seven Brothers", "Zone": "Kahuku", "GPS": "Seven Brothers Burgers Kahuku", "Adult": 20, "Child": 14, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Burgers."},
+    {"Cat": "Food", "Name": "[Kahuku] Dinner: Seven Brothers", "Zone": "Kahuku", "GPS": "Seven Brothers Burgers Kahuku", "Adult": 20, "Child": 14, "Discount": 0, "Parking": 0, "Link": "https://www.sevenbrothersburgers.com/", "Desc": "Burgers."},
+    
     {"Cat": "Food", "Name": "[Kaneohe] Lunch: McDonald's", "Zone": "Kaneohe", "GPS": "McDonald's Kaneohe", "Adult": 12, "Child": 10, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Quick stop."},
+    
     {"Cat": "Food", "Name": "[West] Dinner: Paradise Cove Luau", "Zone": "West", "GPS": "Paradise Cove Luau", "Adult": 140, "Child": 110, "Discount": 0.15, "Parking": 0, "Link": "https://www.paradisecove.com", "Desc": "Luau (15% Mil Disc)."},
     {"Cat": "Food", "Name": "[West] Dinner: Chief's Luau", "Zone": "West", "GPS": "Chief's Luau", "Adult": 155, "Child": 135, "Discount": 0.15, "Parking": 0, "Link": "https://www.chiefsluau.com", "Desc": "Luau (15% Mil Disc)."},
+    
     {"Cat": "Food", "Name": "[Waimea] Dinner: Toa Luau", "Zone": "Waimea", "GPS": "Toa Luau", "Adult": 135, "Child": 105, "Discount": 0.15, "Parking": 0, "Link": "https://www.toaluau.com", "Desc": "Luau (15% Mil Disc)."}
 ]
 df = pd.DataFrame(data_raw)
@@ -175,11 +180,8 @@ if st.sidebar.button("💾 Save All Changes", type="primary"):
 
 # --- NUCLEAR OPTION (Wipe Cloud) ---
 if st.sidebar.button("⚠️ Factory Reset (Wipe Cloud)"):
-    # 1. Clear Session
     st.session_state.itin_db = {}
-    # 2. Wipe Cloud
     wipe_itinerary_db()
-    # 3. Reload
     st.success("Cloud data wiped! Loading Smart Defaults...")
     st.rerun()
 
@@ -188,83 +190,47 @@ st.title("🌺 Oahu Ultimate Planner")
 st.caption("Live GPS • Smart Geographically Grouped • Veteran Savings 🪖")
 
 days = [
-    # MONDAY: ARRIVAL (5 Slots)
-    ("Mon 20 (Arrival)", [
-        "Morning (Travel)", "Transport (Car Rental)", 
-        "Afternoon (Check-In)", "Dinner (Easy)", "End"
-    ]),
-    
-    # TUESDAY: WINDWARD SIDE (8 Slots)
-    ("Tue 21 (Windward Side)", [
-        "Start", "Breakfast", "Morning (Temple)", "Lunch (Kaneohe)", 
-        "Afternoon (Kualoa)", "Dinner", "Night (Stargazing)", "End"
-    ]),
-    
-    # WEDNESDAY: NORTH SHORE (8 Slots)
-    ("Wed 22 (North Shore)", [
-        "Start", "Breakfast (North)", "Morning (Waimea)", "Lunch (Shrimp)", 
-        "Afternoon (Dole)", "Dinner (North)", "Night", "End"
-    ]),
-    
-    # THURSDAY: WEST SIDE / DOLPHINS (8 Slots)
-    ("Thu 23 (West/Dolphins)", [
-        "Start", "Breakfast (Early)", "Morning (Dolphins)", "Lunch", 
-        "Afternoon (Relax)", "Dinner (Luau)", "Night", "End"
-    ]),
-    
-    # FRIDAY: DEPARTURE (5 Slots)
-    ("Fri 24 (Departure)", [
-        "Start", "Breakfast (Waikiki)", "Morning (Beach)", 
-        "Lunch (Local)", "Afternoon (Travel)"
-    ])
+    ("Mon 20 (Arrival)", ["Morning (Travel)", "Transport (Car Rental)", "Afternoon (Check-In)", "Dinner (Easy)", "End"]),
+    ("Tue 21 (Windward Side)", ["Start", "Breakfast", "Morning (Temple)", "Lunch (Kaneohe)", "Afternoon (Kualoa)", "Dinner", "Night (Stargazing)", "End"]),
+    ("Wed 22 (North Shore)", ["Start", "Breakfast (North)", "Morning (Waimea)", "Lunch (Shrimp)", "Afternoon (Dole)", "Dinner (North)", "Night", "End"]),
+    ("Thu 23 (West/Dolphins)", ["Start", "Breakfast (Early)", "Morning (Dolphins)", "Lunch", "Afternoon (Relax)", "Dinner (Luau)", "Night", "End"]),
+    ("Fri 24 (Departure)", ["Start", "Breakfast (Waikiki)", "Morning (Beach)", "Lunch (Local)", "Afternoon (Travel)"])
 ]
 
 # --- SMART GEOGRAPHIC DEFAULTS (Matched to 34 Slots) ---
 factory_defaults = [
-    # MON (5 Slots) - Arrival
+    # MON
     "[Airport] Travel: Flight to Oahu (ELP->HNL)", "[Airport] Travel: Rental Car Pickup", "[Waikiki] Hotel: Hyatt Place (Return/Rest)", "[Waikiki] Dinner: Duke's Waikiki", "[Waikiki] Hotel: Hyatt Place (Return/Rest)",
-    
-    # TUE (8 Slots) - Windward (Temple -> Kualoa)
+    # TUE
     "[Waikiki] Start: Depart Hotel (Hyatt Place)", "[Waikiki] Breakfast: Hotel Buffet (Included)", "[Kaneohe] Culture: Byodo-In Temple", "[Kaneohe] Lunch: McDonald's", "[Kualoa] Jurassic Adv (Tour)", "[Kailua] Beach: Lanikai Beach", "[Waikiki] Dinner: Maui Brewing Co.", "[Waikiki] Hotel: Hyatt Place (Return/Rest)",
-    
-    # WED (8 Slots) - North Shore (Waimea -> Shrimp -> Dole)
+    # WED
     "[Waikiki] Start: Depart Hotel (Hyatt Place)", "[Haleiwa] Breakfast: Kono's", "[Waimea] Adventure: Waimea Bay", "[Kahuku] Lunch: Giovanni's Shrimp", "[Haleiwa] Explore: Dole Plantation", "[Waimea] Snorkel: Shark's Cove", "[Kahuku] Dinner: Seven Brothers", "[Waikiki] Hotel: Hyatt Place (Return/Rest)",
-    
-    # THU (8 Slots) - West Side (Dolphins -> Luau)
+    # THU
     "[Waikiki] Start: Depart Hotel (Hyatt Place)", "[Waikiki] Breakfast: Leonard's Bakery", "[West] Tour: Dolphins & You (Groupon)", "[Kaneohe] Lunch: McDonald's", "[Waikiki] Swim: Ala Moana Beach", "[West] Dinner: Paradise Cove Luau", "[Haleiwa] Night: Stargazing", "[Waikiki] Hotel: Hyatt Place (Return/Rest)",
-    
-    # FRI (5 Slots) - Departure
+    # FRI
     "[Waikiki] Start: Depart Hotel (Hyatt Place)", "[Waikiki] Breakfast: Duke's Waikiki", "[Waikiki] Relax: Waikiki Beach", "[Waikiki] Dinner: Rainbow Drive-In", "[Airport] Travel: Flight Home (HNL->ELP)"
 ]
 
 # --- HELPER TO CHECK DUPLICATES ---
 def get_current_selections_for_dupe_check():
-    """Returns list of current active selections to check for duplicates."""
     current_sel = []
     temp_counter = 0
-    # Reconstruct what the user sees
     for day_name, day_slots in days:
         for _ in day_slots:
-            # 1. User Edit?
             if temp_counter in st.session_state:
                 val = st.session_state[temp_counter]
-            # 2. Saved in DB?
             elif temp_counter in st.session_state.itin_db:
                 val = st.session_state.itin_db[temp_counter]
-            # 3. Default?
             elif temp_counter < len(factory_defaults):
                 val = factory_defaults[temp_counter]
             else:
                 val = data_raw[0]['Name']
             
-            # Filter Exclusions
             if not any(x in val for x in ["Hotel:", "Travel:", "Start:", "End:", "Included"]):
                 current_sel.append(val)
-            
             temp_counter += 1
     return current_sel
 
-# Calculate Dupes Once per Rerun
 all_active_acts = get_current_selections_for_dupe_check()
 dupe_counts = Counter(all_active_acts)
 
@@ -283,14 +249,14 @@ for day_name, slots in days:
         else:
             target_val = data_raw[0]['Name']
             
-        # SORTED ALPHABETICALLY SO ZONES ARE GROUPED
         all_options = sorted(df['Name'].tolist())
         try:
             default_idx = all_options.index(target_val)
         except ValueError:
             default_idx = 0
             
-        c1, c2 = st.columns([3, 1])
+        # Use 3 columns for better layout: Selectbox, Map Button, Web Button
+        c1, c2, c3 = st.columns([2.8, 0.6, 0.6])
         with c1:
             selected = st.selectbox(f"{slot_name}", all_options, index=default_idx, key=slot_counter, label_visibility="collapsed")
         
@@ -313,8 +279,15 @@ for day_name, slots in days:
         total_food_fun += cost
         live_map_url = f"https://www.google.com/maps/dir/?api=1&origin=?q={gps_target}+Hawaii"
         
+        # MAP BUTTON
         with c2:
-            st.link_button("📍 GO", live_map_url, type="primary")
+            st.link_button("📍 Map", live_map_url, use_container_width=True)
+            
+        # WEB BUTTON (If link exists)
+        with c3:
+            web_link = row.get('Link', '')
+            if web_link:
+                st.link_button("🌍 Web", web_link, use_container_width=True)
 
         # DUPLICATE WARNING
         is_ignored = any(x in selected for x in ["Hotel:", "Travel:", "Start:", "End:", "Included"])
