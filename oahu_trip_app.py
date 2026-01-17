@@ -191,7 +191,6 @@ with st.sidebar.expander("🔄 Swap Days"):
     day_b = st.selectbox("With Day B", swap_days_list, key="swap_b")
     
     if st.button("Swap Itinerary"):
-        # Define ranges for all days
         day_ranges = {
             "Mon 20 (Arrival)": range(0, 5),
             "Tue 21 (Windward Side)": range(5, 13),
@@ -204,28 +203,28 @@ with st.sidebar.expander("🔄 Swap Days"):
         range_b = day_ranges[day_b]
         
         if len(range_a) != len(range_b):
-            st.error("Cannot swap: Different number of slots (e.g. Travel Day vs Full Day)")
+            st.error("Cannot swap days with different slot counts.")
         else:
-            # Reconstruct current state including defaults
             current_itin = {}
             for i in range(34):
-                if i in st.session_state.itin_db:
+                if i in st.session_state:
+                    current_itin[i] = st.session_state[i]
+                elif i in st.session_state.itin_db:
                     current_itin[i] = st.session_state.itin_db[i]
                 elif i < len(factory_defaults):
                     current_itin[i] = factory_defaults[i]
                 else:
                     current_itin[i] = data_raw[0]['Name']
             
-            # Perform Swap
             for idx_a, idx_b in zip(range_a, range_b):
                 val_a = current_itin[idx_a]
                 val_b = current_itin[idx_b]
                 st.session_state.itin_db[idx_a] = val_b
                 st.session_state.itin_db[idx_b] = val_a
+                st.session_state[idx_a] = val_b
+                st.session_state[idx_b] = val_a
             
-            # Force Save
-            save_button_simulator = True
-            st.success(f"Swapped {day_a} with {day_b}! Click Save to make it permanent.")
+            st.success(f"Swapped {day_a} with {day_b}! Save to permanent.")
             st.rerun()
 
 # --- NUCLEAR OPTION (Wipe Cloud) ---
@@ -267,7 +266,9 @@ def get_current_selections_for_dupe_check():
     temp_counter = 0
     for day_name, day_slots in days:
         for _ in day_slots:
-            if temp_counter in st.session_state.itin_db:
+            if temp_counter in st.session_state:
+                val = st.session_state[temp_counter]
+            elif temp_counter in st.session_state.itin_db:
                 val = st.session_state.itin_db[temp_counter]
             elif temp_counter < len(factory_defaults):
                 val = factory_defaults[temp_counter]
@@ -303,7 +304,7 @@ for day_name, slots in days:
         except ValueError:
             default_idx = 0
             
-        # Use 3 columns for better layout: Selectbox, Map Button, Web Button
+        # 3 COLUMNS: SELECT, MAP, WEB
         c1, c2, c3 = st.columns([2.8, 0.6, 0.6])
         with c1:
             selected = st.selectbox(f"{slot_name}", all_options, index=default_idx, key=slot_counter, label_visibility="collapsed")
@@ -327,18 +328,17 @@ for day_name, slots in days:
         total_food_fun += cost
         live_map_url = f"https://www.google.com/maps/dir/?api=1&origin=?q={gps_target}+Hawaii"
         
+        # MAP
         with c2:
             st.link_button("📍 Map", live_map_url, use_container_width=True)
             
-        # WEB BUTTON (If link exists)
+        # WEB
         with c3:
             web_link = row.get('Link', '')
             if web_link:
                 st.link_button("🌍 Web", web_link, use_container_width=True)
 
-        # DUPLICATE WARNING
-        is_ignored = any(x in selected for x in ["Hotel:", "Travel:", "Start:", "End:", "Included"])
-        if not is_ignored and dupe_counts[selected] > 1:
+        if not any(x in selected for x in ["Hotel:", "Travel:", "Start:", "End:", "Included"]) and dupe_counts[selected] > 1:
             st.error(f"⚠️ Duplicate! You selected this {dupe_counts[selected]} times.")
 
         desc_text = row.get('Desc', '-')
