@@ -35,6 +35,7 @@ def save_all(pkg_val, fun_val, itinerary_snapshot):
 # --- 2. SETUP DATA ---
 zones = ['Waikiki', 'Airport', 'West', 'Haleiwa', 'Waimea', 'Kahuku', 'Kualoa', 'Kaneohe', 'Kailua', 'Waimanalo', 'HawaiiKai']
 
+# 11x11 Time Matrix
 time_data = [
     [15, 20, 45, 50, 60, 70, 50, 30, 35, 40, 25], 
     [20, 0,  25, 40, 50, 60, 40, 25, 30, 40, 35], 
@@ -51,8 +52,12 @@ time_data = [
 time_df = pd.DataFrame(time_data, index=zones, columns=zones)
 
 # --- MASTER DATABASE ---
-# Updated with discounts and "Full Day" items
 data_raw = [
+    # --- TRAVEL (Updated with ELP Times) ---
+    {"Cat": "Act", "Name": "Travel: Flight to Oahu (ELP->HNL)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Approx 11 hrs travel (w/ layover)."},
+    {"Cat": "Act", "Name": "Travel: Flight Home (HNL->ELP)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Approx 10 hrs travel (w/ layover)."},
+    {"Cat": "Act", "Name": "Travel: Rental Car Pickup", "Zone": "Airport", "GPS": "Enterprise Rent-A-Car", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Pick up rental vehicle."},
+    
     # --- KUALOA (15% Mil Discount) ---
     {"Cat": "Act", "Name": "Kualoa: Best of Kualoa (Full Day)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 199, "Child": 149, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/packages/", "Desc": "8:30am-3:30pm. 3 tours + Buffet. (15% Mil Disc)."},
     {"Cat": "Act", "Name": "✅ Included in Full Day Package", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Activity continues..."},
@@ -69,8 +74,6 @@ data_raw = [
     # --- ACTIVITIES ---
     {"Cat": "Act", "Name": "Hotel: Hyatt Place (Return/Rest)", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.hyatt.com", "Desc": "End of Day."},
     {"Cat": "Act", "Name": "Start: Depart Hotel (Hyatt Place)", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Start of Day."},
-    {"Cat": "Act", "Name": "Travel: Flight to Oahu", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Flight."},
-    {"Cat": "Act", "Name": "Travel: Flight Home", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Flight."},
     {"Cat": "Act", "Name": "Relax: Waikiki Beach", "Zone": "Waikiki", "GPS": "Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Free beach time."},
     {"Cat": "Act", "Name": "Swim: Ala Moana Beach", "Zone": "Waikiki", "GPS": "Ala Moana Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Calm waters."},
     {"Cat": "Act", "Name": "Hike: Diamond Head", "Zone": "Waikiki", "GPS": "Diamond Head State Monument", "Adult": 10, "Child": 0, "Discount": 1.0, "Parking": 10, "Link": "https://gostateparks.hawaii.gov/diamondhead", "Desc": "Free w/ Vet ID (Check Gate)."},
@@ -153,7 +156,6 @@ st.sidebar.header("💾 Controls")
 
 if st.sidebar.button("💾 Save All Changes", type="primary"):
     current_itin_snapshot = []
-    # Save up to 50 slots (5 days * 8 slots = 40)
     for i in range(50):
         if i in st.session_state:
             current_itin_snapshot.append({"ID": i, "Activity": st.session_state[i]})
@@ -176,26 +178,58 @@ if st.sidebar.button("⚠️ Factory Reset"):
 st.title("🌺 Oahu Trip App")
 st.caption("Live GPS • Smart Itinerary • Veteran Savings 🪖")
 
+# --- DEFINING THE DAYS & SLOTS ---
 days = [
-    ("Mon 20", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon", "Dinner", "Night", "End"]),
-    ("Tue 21", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon", "Dinner", "Night", "End"]),
-    ("Wed 22", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon", "Dinner", "Night", "End"]),
-    ("Thu 23", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon", "Dinner", "Night", "End"]),
-    ("Fri 24", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon", "Dinner", "Night", "End"])
+    # MONDAY: ARRIVAL (Limited Slots)
+    ("Mon 20 (Travel Day)", [
+        "Morning (Travel)", 
+        "Transport (Car Rental)", 
+        "Afternoon (Check-In)", 
+        "Dinner", 
+        "End"
+    ]),
+    
+    # TUESDAY: FULL DAY
+    ("Tue 21", [
+        "Start", "Breakfast", "Morning", "Lunch", 
+        "Afternoon", "Dinner", "Night", "End"
+    ]),
+    
+    # WEDNESDAY: FULL DAY
+    ("Wed 22", [
+        "Start", "Breakfast", "Morning", "Lunch", 
+        "Afternoon", "Dinner", "Night", "End"
+    ]),
+    
+    # THURSDAY: FULL DAY
+    ("Thu 23", [
+        "Start", "Breakfast", "Morning", "Lunch", 
+        "Afternoon", "Dinner", "Night", "End"
+    ]),
+    
+    # FRIDAY: DEPARTURE (Limited Slots)
+    ("Fri 24 (Travel Day)", [
+        "Start", "Breakfast", "Morning", "Lunch", 
+        "Afternoon (Travel)"
+    ])
 ]
 
-# EXPANDED DEFAULTS (40 Items for 8 slots/day x 5 days)
+# --- DEFAULTS (Mapped to New Slots) ---
 factory_defaults = [
-    # MON
-    "Start: Depart Hotel (Hyatt Place)", "Breakfast: Hotel Buffet (Included)", "Travel: Flight to Oahu", "Lunch: McDonald's (Kaneohe)", "Relax: Waikiki Beach", "Dinner: Hale Koa Luau", "Show: Free Hula Show", "Hotel: Hyatt Place (Return/Rest)",
-    # TUE
+    # MON (5 Slots)
+    "Travel: Flight to Oahu (ELP->HNL)", "Travel: Rental Car Pickup", "Hotel: Hyatt Place (Return/Rest)", "Dinner: Hale Koa Luau", "Hotel: Hyatt Place (Return/Rest)",
+    
+    # TUE (8 Slots)
     "Start: Depart Hotel (Hyatt Place)", "Breakfast: Hotel Buffet (Included)", "Hike: Diamond Head", "Lunch: Giovanni's Shrimp Truck", "Swim: Ala Moana Beach", "Dinner: Yard House", "Night: Stargazing", "Hotel: Hyatt Place (Return/Rest)",
-    # WED
+    
+    # WED (8 Slots)
     "Start: Depart Hotel (Hyatt Place)", "Breakfast: Leonard's Bakery", "Kualoa: Best of Kualoa (Full Day)", "✅ Included in Full Day Package", "✅ Included in Full Day Package", "Dinner: Seven Brothers", "Night: Stargazing", "Hotel: Hyatt Place (Return/Rest)",
-    # THU
+    
+    # THU (8 Slots)
     "Start: Depart Hotel (Hyatt Place)", "Breakfast: Hotel Buffet (Included)", "Snorkel: Hanauma Bay", "Lunch: McDonald's (Kaneohe)", "Explore: Dole Plantation", "Dinner: Marukame Udon", "Show: Free Hula Show", "Hotel: Hyatt Place (Return/Rest)",
-    # FRI
-    "Start: Depart Hotel (Hyatt Place)", "Breakfast: Duke's Waikiki", "Relax: Waikiki Beach", "Lunch: Seven Brothers Burgers", "Travel: Depart for Airport", "Dinner: Zippy's", "Travel: Flight Home", "Hotel: Hyatt Place (Return/Rest)"
+    
+    # FRI (5 Slots)
+    "Start: Depart Hotel (Hyatt Place)", "Breakfast: Duke's Waikiki", "Relax: Waikiki Beach", "Lunch: Seven Brothers Burgers", "Travel: Flight Home (HNL->ELP)"
 ]
 
 total_food_fun = 0
@@ -206,7 +240,6 @@ for day_name, slots in days:
     st.markdown(f"### 📅 {day_name}")
     
     for slot_name in slots:
-        # Determine value (DB > Default > Generic)
         if slot_counter in st.session_state.itin_db:
             target_val = st.session_state.itin_db[slot_counter]
         elif slot_counter < len(factory_defaults):
@@ -233,7 +266,6 @@ for day_name, slots in days:
         except:
             minutes = 0
         
-        # COST CALCULATION
         discount = row.get('Discount', 0)
         parking = row.get('Parking', 0)
         
