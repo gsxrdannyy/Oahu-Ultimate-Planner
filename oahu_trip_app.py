@@ -54,7 +54,7 @@ base_cost = st.sidebar.number_input("Fixed Costs (Hotel/Air)", value=5344)
 
 # --- 3. MAIN APP INTERFACE ---
 st.title("🌺 Oahu Trip App")
-st.caption("Now with Live GPS Handoff")
+st.caption("Live GPS • Auto-Budgeting • Itinerary")
 
 days = [
     ("Mon 20", ["Morning (Travel)", "Afternoon (Arr)", "Dinner"]),
@@ -80,17 +80,26 @@ for day, slots in days:
     st.markdown(f"### 📅 {day}")
     
     for slot_name in slots:
+        # Determine default value
         def_val = defaults[slot_counter] if slot_counter < len(defaults) else data[0]['Name']
         
+        # 1. FIXED LOGIC: Get list of names and find integer index
+        # This prevents the StreamlitAPIException (int64 error)
+        all_options = df['Name'].tolist()
+        try:
+            default_idx = all_options.index(def_val)
+        except ValueError:
+            default_idx = 0
+            
         # UI Layout
         c1, c2 = st.columns([3, 1])
         with c1:
-            selected = st.selectbox(f"{slot_name}", df['Name'], index=df[df['Name']==def_val].index[0], key=slot_counter, label_visibility="collapsed")
+            selected = st.selectbox(f"{slot_name}", all_options, index=default_idx, key=slot_counter, label_visibility="collapsed")
         
         # Logic
         row = df[df['Name'] == selected].iloc[0]
         curr_zone = row['Zone']
-        gps_target = row['GPS'].replace(" ", "+") # Prepare for URL
+        gps_target = row['GPS'].replace(" ", "+")
         
         # Static Calc
         minutes = time_matrix.loc[prev_zone, curr_zone]
@@ -99,13 +108,11 @@ for day, slots in days:
         cost = (row['Adult'] * adults) + (row['Child'] * kids)
         total_cost += cost
         
-        # LIVE GPS LINK CONSTRUCTION
-        # This link forces Google Maps to calculate route from YOUR CURRENT LOCATION to the Activity
-        live_map_url = f"https://www.google.com/maps/dir/?api=1&destination={gps_target}+Hawaii"
+        # LIVE GPS LINK
+        live_map_url = f"https://www.google.com/maps/dir/?api=1&origin=?q={gps_target}+Hawaii"
         
         # Display Stats
         with c2:
-            # The Magic Button
             st.link_button("📍 GO", live_map_url, type="primary")
 
         s1, s2, s3 = st.columns(3)
