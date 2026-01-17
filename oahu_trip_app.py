@@ -10,31 +10,48 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 
 def load_data():
     try:
+        # Load Budget
         df_budget = conn.read(worksheet="Sheet1", usecols=[0, 1], ttl=0)
         budget_dict = df_budget.set_index("Category")["Amount"].to_dict()
+        
+        # Load Itinerary
+        # We try-catch this in case the sheet is empty or messed up
         try:
             df_itin = conn.read(worksheet="Itinerary", usecols=[0, 1], ttl=0)
+            # If the sheet is empty, return empty dict so defaults take over
+            if df_itin.empty:
+                return budget_dict, {}
             itin_dict = df_itin.set_index("ID")["Activity"].to_dict()
         except:
             itin_dict = {}
+            
         return budget_dict, itin_dict
     except:
         return {}, {}
 
 def save_all(pkg_val, fun_val, itinerary_snapshot):
+    # Save Budget
     budget_data = pd.DataFrame([
         {"Category": "Package", "Amount": pkg_val},
         {"Category": "FoodFun", "Amount": fun_val}
     ])
     conn.update(worksheet="Sheet1", data=budget_data)
     
+    # Save Itinerary
     itin_data = pd.DataFrame(itinerary_snapshot, columns=["ID", "Activity"])
     conn.update(worksheet="Itinerary", data=itin_data)
+    st.cache_data.clear()
+
+def wipe_itinerary_db():
+    # Helper to wipe the DB so defaults can reload
+    empty_data = pd.DataFrame(columns=["ID", "Activity"])
+    conn.update(worksheet="Itinerary", data=empty_data)
     st.cache_data.clear()
 
 # --- 2. SETUP DATA ---
 zones = ['Waikiki', 'Airport', 'West', 'Haleiwa', 'Waimea', 'Kahuku', 'Kualoa', 'Kaneohe', 'Kailua', 'Waimanalo', 'HawaiiKai']
 
+# 11x11 Time Matrix
 time_data = [
     [15, 20, 45, 50, 60, 70, 50, 30, 35, 40, 25], 
     [20, 0,  25, 40, 50, 60, 40, 25, 30, 40, 35], 
@@ -79,7 +96,7 @@ data_raw = [
     {"Cat": "Act", "Name": "Snorkel: Hanauma Bay", "Zone": "HawaiiKai", "GPS": "Hanauma Bay", "Adult": 25, "Child": 0, "Discount": 1.0, "Parking": 3, "Link": "https://pros9.hnl.info/", "Desc": "Free w/ Vet ID."},
     {"Cat": "Act", "Name": "Adventure: Waimea Bay", "Zone": "Waimea", "GPS": "Waimea Bay Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Jumping rock."},
     {"Cat": "Act", "Name": "Beach: Lanikai Beach", "Zone": "Kailua", "GPS": "Lanikai Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "White sand."},
-    {"Cat": "Act", "Name": "Explore: Dole Plantation", "Zone": "Haleiwa", "GPS": "Dole Plantation", "Adult": 9, "Child": 7, "Discount": 0.15, "Parking": 0, "Link": "https://doleplantation.com", "Desc": "Pineapple maze."},
+    {"Cat": "Act", "Name": "Explore: Dole Plantation", "Zone": "Haleiwa", "GPS": "Dole Plantation", "Adult": 9, "Child": 7, "Discount": 0.15, "Parking": 0, "Link": "https://doleplantation.com", "Desc": "Pineapple maze (15% Mil Disc)."},
     {"Cat": "Act", "Name": "Snorkel: Kuilima Cove", "Zone": "Kahuku", "GPS": "Kuilima Cove", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Turtle Bay."},
     {"Cat": "Act", "Name": "Snorkel: Shark's Cove", "Zone": "Waimea", "GPS": "Shark's Cove", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "North Shore."},
     {"Cat": "Act", "Name": "Sunset: Ko Olina Lagoons", "Zone": "West", "GPS": "Ko Olina Lagoons", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Sunset spot."},
@@ -97,6 +114,7 @@ data_raw = [
     {"Cat": "Act", "Name": "Museum: Bishop Museum", "Zone": "Waikiki", "GPS": "Bishop Museum", "Adult": 25, "Child": 15, "Discount": 0.20, "Parking": 5, "Link": "", "Desc": "Museum (20% Mil Disc)."},
     {"Cat": "Act", "Name": "Zoo: Honolulu Zoo", "Zone": "Waikiki", "GPS": "Honolulu Zoo", "Adult": 19, "Child": 11, "Discount": 0, "Parking": 6, "Link": "", "Desc": "Zoo."},
     {"Cat": "Act", "Name": "Show: Free Hula Show", "Zone": "Waikiki", "GPS": "Kuhio Beach Hula Mound", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Free sunset hula."},
+    {"Cat": "Act", "Name": "Night: Fireworks", "Zone": "Waikiki", "GPS": "Hilton Hawaiian Village", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Friday Night Fireworks."},
     {"Cat": "Act", "Name": "Night: Stargazing", "Zone": "Haleiwa", "GPS": "Waialua", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "North shore dark skies."},
     {"Cat": "Act", "Name": "(Select Activity)", "Zone": "Waikiki", "GPS": "Waikiki", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "-"},
     
@@ -155,7 +173,7 @@ st.sidebar.header("💾 Controls")
 
 if st.sidebar.button("💾 Save All Changes", type="primary"):
     current_itin_snapshot = []
-    # Scan 50 slots to ensure all days are captured
+    # Save up to 50 slots
     for i in range(50):
         if i in st.session_state:
             current_itin_snapshot.append({"ID": i, "Activity": st.session_state[i]})
@@ -163,15 +181,14 @@ if st.sidebar.button("💾 Save All Changes", type="primary"):
     st.sidebar.success("Saved!")
     st.session_state.budget_db, st.session_state.itin_db = load_data()
 
-if st.sidebar.button("↩️ Discard & Reload"):
-    st.cache_data.clear()
-    st.session_state.budget_db, st.session_state.itin_db = load_data()
-    for k, v in st.session_state.itin_db.items():
-        st.session_state[int(k)] = v
-    st.rerun()
-
-if st.sidebar.button("⚠️ Factory Reset"):
+# --- NUCLEAR OPTION (Wipe Cloud) ---
+if st.sidebar.button("⚠️ Factory Reset (Wipe Cloud)"):
+    # 1. Clear Session
     st.session_state.itin_db = {}
+    # 2. Wipe Cloud
+    wipe_itinerary_db()
+    # 3. Reload
+    st.success("Cloud data wiped! Loading Smart Defaults...")
     st.rerun()
 
 # --- 5. MAIN INTERFACE ---
@@ -210,10 +227,11 @@ days = [
     ])
 ]
 
-# --- SMART GEOGRAPHIC DEFAULTS (Matched to 34 Slots) ---
+# --- SMART GEOGRAPHIC DEFAULTS ---
+# 34 Items to match exactly 34 slots above
 factory_defaults = [
     # MON (5 Slots) - Arrival
-    "Travel: Flight to Oahu (ELP->HNL)", "Travel: Rental Car Pickup", "Hotel: Hyatt Place (Return/Rest)", "Dinner: Yard House", "Hotel: Hyatt Place (Return/Rest)",
+    "Travel: Flight to Oahu (ELP->HNL)", "Travel: Rental Car Pickup", "Hotel: Hyatt Place (Return/Rest)", "Dinner: Duke's Waikiki", "Hotel: Hyatt Place (Return/Rest)",
     
     # TUE (8 Slots) - Windward (Temple -> Kualoa)
     "Start: Depart Hotel (Hyatt Place)", "Breakfast: Hotel Buffet (Included)", "Culture: Byodo-In Temple", "Lunch: McDonald's (Kaneohe)", "Kualoa: Jurassic Adv (Tour)", "Beach: Lanikai Beach", "Dinner: Maui Brewing Co.", "Hotel: Hyatt Place (Return/Rest)",
@@ -236,7 +254,6 @@ for day_name, slots in days:
     st.markdown(f"### 📅 {day_name}")
     
     for slot_name in slots:
-        # Determine value (DB > Default > Generic)
         if slot_counter in st.session_state.itin_db:
             target_val = st.session_state.itin_db[slot_counter]
         elif slot_counter < len(factory_defaults):
