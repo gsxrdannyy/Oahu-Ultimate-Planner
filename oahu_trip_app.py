@@ -1,15 +1,39 @@
 import streamlit as st
 import pandas as pd
+from streamlit_gsheets import GSheetsConnection
 
 # --- APP CONFIGURATION ---
 st.set_page_config(page_title="Oahu Ultimate Planner", page_icon="🌺", layout="centered")
 
-# --- 1. SETUP DATA ---
-# Define Zones explicitly to ensure they match the matrix
+# --- 1. DATABASE CONNECTION (Google Sheets) ---
+# This connects using the secrets you just saved
+conn = st.connection("gsheets", type=GSheetsConnection)
+
+def get_budget_from_db():
+    try:
+        # Read the sheet (ttl=0 ensures we don't load old cached data)
+        df = conn.read(worksheet="Sheet1", usecols=[0, 1], ttl=0)
+        # Convert to a simple dictionary for easier use
+        # Expected format: Category (Col A), Amount (Col B)
+        return df.set_index("Category")["Amount"].to_dict()
+    except:
+        # Fallback if sheet is empty or connection fails temporarily
+        return {"Package": 5000.0, "FoodFun": 1500.0}
+
+def save_budget_to_db(pkg_val, fun_val):
+    # Create a DataFrame with the new values
+    new_data = pd.DataFrame([
+        {"Category": "Package", "Amount": pkg_val},
+        {"Category": "FoodFun", "Amount": fun_val}
+    ])
+    # Write it to the sheet
+    conn.update(worksheet="Sheet1", data=new_data)
+    st.cache_data.clear() # Clear cache so the app sees new data immediately
+
+# --- 2. SETUP DATA (Zones & Travel Matrix) ---
 zones = ['Waikiki', 'Airport', 'West', 'Haleiwa', 'Waimea', 'Kahuku', 'Kualoa', 'Kaneohe', 'Kailua', 'Waimanalo', 'HawaiiKai']
 
 # Travel Time Matrix (Minutes)
-# This creates the lookup table for drive times
 time_data = [
     [15, 20, 45, 50, 60, 70, 50, 30, 35, 40, 25], # Waikiki
     [20, 0,  25, 40, 50, 60, 40, 25, 30, 40, 35], # Airport
@@ -26,7 +50,6 @@ time_data = [
 time_df = pd.DataFrame(time_data, index=zones, columns=zones)
 
 # Master Database
-# Format: Category, Name, Zone, GPS Term, Adult Cost, Child Cost, Website Link
 data_raw = [
     {"Cat": "Act", "Name": "Hotel: Hyatt Place (Rest)", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Link": "https://www.hyatt.com"},
     {"Cat": "Act", "Name": "Start: Depart Hotel", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Link": ""},
@@ -90,7 +113,7 @@ data_raw = [
 ]
 df = pd.DataFrame(data_raw)
 
-# --- 2. SIDEBAR SETTINGS ---
+# --- 3. SIDEBAR SETTINGS (With Persistence) ---
 st.sidebar.header("⚙️ Trip Settings")
 adults = st.sidebar.number_input("Adults", 1, 10, 2)
 kids = st.sidebar.number_input("Kids", 0, 10, 3)
@@ -98,12 +121,24 @@ base_cost = st.sidebar.number_input("Fixed Package Cost", value=5344, help="Flig
 
 st.sidebar.markdown("---")
 st.sidebar.header("💰 Savings Tracker")
-saved_pkg = st.sidebar.number_input("Saved for Package", value=5000, step=100)
-saved_fun = st.sidebar.number_input("Saved for Food & Fun", value=1500, step=50)
 
-# --- 3. MAIN APP INTERFACE ---
+# FETCH SAVED VALUES FROM CLOUD
+current_budget = get_budget_from_db()
+db_pkg = float(current_budget.get("Package", 5000.0))
+db_fun = float(current_budget.get("FoodFun", 1500.0))
+
+# INPUTS
+saved_pkg = st.sidebar.number_input("Saved for Package", value=db_pkg, step=100.0)
+saved_fun = st.sidebar.number_input("Saved for Food & Fun", value=db_fun, step=50.0)
+
+# SAVE BUTTON (To avoid hitting Google API Limits on every keypress)
+if st.sidebar.button("💾 Save to Cloud", type="primary"):
+    save_budget_to_db(saved_pkg, saved_fun)
+    st.sidebar.success("Saved!")
+
+# --- 4. MAIN APP INTERFACE ---
 st.title("🌺 Oahu Trip App")
-st.caption("Live GPS • Split Budget • 11 Zones")
+st.caption("Live GPS • Persistent Budget • 11 Zones")
 
 days = [
     ("Mon 20", ["Morning (Travel)", "Afternoon (Arr)", "Dinner"]),
@@ -121,12 +156,10 @@ defaults = [
     "Relax: Waikiki Beach", "Travel: Flight Home"
 ]
 
-# Trackers
 total_food_fun = 0
 prev_zone = "Waikiki"
 slot_counter = 0
 
-# --- MAIN LOOP ---
 for day, slots in days:
     st.markdown(f"### 📅 {day}")
     
@@ -150,11 +183,11 @@ for day, slots in days:
         curr_zone = row['Zone']
         gps_target = row['GPS'].replace(" ", "+")
         
-        # Static Calc (Travel Time) - Wrapped in try/except to prevent crashing
+        # Static Calc (Travel Time)
         try:
             minutes = time_df.loc[prev_zone, curr_zone]
-        except KeyError:
-            minutes = 0 # Default if zone lookup fails
+        except:
+            minutes = 0
         
         # Calc Cost (Variable only)
         cost = (row['Adult'] * adults) + (row['Child'] * kids)
@@ -177,10 +210,9 @@ for day, slots in days:
     
     st.divider()
 
-# --- 4. TOTALS (SPLIT VIEW + BUDGET) ---
+# --- 5. TOTALS (SPLIT VIEW + BUDGET) ---
 st.header("💰 Budget Breakdown")
 
-# --- PACKAGE BUDGET ---
 c1, c2 = st.columns(2)
 with c1:
     st.subheader("✈️ Package")
@@ -192,7 +224,6 @@ with c1:
     else:
         st.error(f"Need: ${abs(diff_pkg):,.0f}")
 
-# --- FOOD & FUN BUDGET ---
 with c2:
     st.subheader("🍔 Food & Fun")
     st.metric("Total Cost", f"${total_food_fun:,.0f}")
@@ -203,7 +234,6 @@ with c2:
     else:
         st.error(f"Need: ${abs(diff_fun):,.0f}")
 
-# --- GRAND TOTAL ---
 grand_total = base_cost + total_food_fun
 grand_saved = saved_pkg + saved_fun
 grand_diff = grand_saved - grand_total
