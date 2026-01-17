@@ -36,70 +36,59 @@ def save_all(pkg_val, fun_val, itinerary_snapshot):
 zones = ['Waikiki', 'Airport', 'West', 'Haleiwa', 'Waimea', 'Kahuku', 'Kualoa', 'Kaneohe', 'Kailua', 'Waimanalo', 'HawaiiKai']
 
 time_data = [
-    [15, 20, 45, 50, 60, 70, 50, 30, 35, 40, 25], # Waikiki
-    [20, 0,  25, 40, 50, 60, 40, 25, 30, 40, 35], # Airport
-    [45, 25, 0,  40, 50, 65, 50, 45, 50, 60, 55], # West
-    [50, 40, 40, 0,  15, 30, 45, 55, 60, 75, 80], # Haleiwa
-    [60, 50, 50, 15, 0,  15, 35, 60, 70, 80, 90], # Waimea
-    [70, 60, 65, 30, 15, 0,  20, 45, 55, 65, 80], # Kahuku
-    [50, 40, 50, 45, 35, 20, 0,  25, 35, 45, 60], # Kualoa
-    [30, 25, 45, 55, 60, 45, 25, 0,  20, 30, 40], # Kaneohe
-    [35, 30, 50, 60, 70, 55, 35, 20, 0,  15, 30], # Kailua
-    [40, 40, 60, 75, 80, 65, 45, 30, 15, 0,  15], # Waimanalo
-    [25, 35, 55, 80, 90, 80, 60, 40, 30, 15, 0]   # HawaiiKai
+    [15, 20, 45, 50, 60, 70, 50, 30, 35, 40, 25], 
+    [20, 0,  25, 40, 50, 60, 40, 25, 30, 40, 35], 
+    [45, 25, 0,  40, 50, 65, 50, 45, 50, 60, 55], 
+    [50, 40, 40, 0,  15, 30, 45, 55, 60, 75, 80], 
+    [60, 50, 50, 15, 0,  15, 35, 60, 70, 80, 90], 
+    [70, 60, 65, 30, 15, 0,  20, 45, 55, 65, 80], 
+    [50, 40, 50, 45, 35, 20, 0,  25, 35, 45, 60], 
+    [30, 25, 45, 55, 60, 45, 25, 0,  20, 30, 40], 
+    [35, 30, 50, 60, 70, 55, 35, 20, 0,  15, 30], 
+    [40, 40, 60, 75, 80, 65, 45, 30, 15, 0,  15], 
+    [25, 35, 55, 80, 90, 80, 60, 40, 30, 15, 0]   
 ]
 time_df = pd.DataFrame(time_data, index=zones, columns=zones)
 
-# --- MASTER DATABASE (Including New Groupons) ---
+# --- MASTER DATABASE ---
 data_raw = [
-    # --- NEW GROUPON ACTIVITIES ---
+    # --- KUALOA OPTIONS ---
     {
         "Cat": "Act", 
-        "Name": "Snorkel: Turtle Canyon (Groupon)", 
-        "Zone": "Waikiki", 
-        "GPS": "Kewalo Basin Harbor", 
-        "Adult": 50, "Child": 40, # Est prices, check link for exact
-        "Link": "https://www.groupon.com/deals/gl-waikiki-turtle-snorkeling-2",
-        "Desc": "Swim with green sea turtles on a guided boat tour."
+        "Name": "Kualoa: Best of Kualoa (Full Day)", 
+        "Zone": "Kualoa", 
+        "GPS": "Kualoa Ranch", 
+        "Adult": 199, "Child": 149, 
+        "Link": "https://www.kualoa.com/packages/", 
+        "Desc": "8:30am-3:30pm. Includes 3 tours + Buffet Lunch. Takes entire day."
     },
     {
         "Cat": "Act", 
-        "Name": "Adventure: E-Sea Scooters (Groupon)", 
-        "Zone": "Waikiki", 
-        "GPS": "Kewalo Basin Harbor", 
-        "Adult": 80, "Child": 80, 
-        "Link": "https://www.groupon.com/deals/e-sea-diver-31",
-        "Desc": "Ride electric underwater scooters; no diving experience needed."
+        "Name": "Kualoa: Jurassic Adv (Tour)", 
+        "Zone": "Kualoa", 
+        "GPS": "Kualoa Ranch", 
+        "Adult": 150, "Child": 75, 
+        "Link": "https://www.kualoa.com/tours/", 
+        "Desc": "2.5 Hr Tour. Premium movie sites. Fits in Morning/Afternoon."
     },
     {
         "Cat": "Act", 
-        "Name": "Boat: Glass Bottom Tour (Groupon)", 
-        "Zone": "Waikiki", 
-        "GPS": "Kewalo Basin Harbor", 
-        "Adult": 35, "Child": 25, 
-        "Link": "https://www.groupon.com/deals/hawaii-glass-bottom-boats",
-        "Desc": "View reefs and marine life through the boat's glass floor."
-    },
-    {
-        "Cat": "Act", 
-        "Name": "Tour: Dolphins & You (Groupon)", 
-        "Zone": "West", # Usually departs Waianae
-        "GPS": "Waianae Small Boat Harbor", 
-        "Adult": 130, "Child": 100, 
-        "Link": "https://www.groupon.com/deals/gl-and-you-creations-1",
-        "Desc": "Boat tour to swim with wild dolphins + snorkel reef."
-    },
-    {
-        "Cat": "Act", 
-        "Name": "Tour: Iruka Dolphin Snorkel (Groupon)", 
-        "Zone": "West", 
-        "GPS": "Waianae Small Boat Harbor", 
-        "Adult": 120, "Child": 90, 
-        "Link": "https://www.groupon.com/deals/iruka-hawaii-dolphin",
-        "Desc": "Morning dolphin watching and snorkeling adventure."
+        "Name": "Kualoa: UTV Raptor (Tour)", 
+        "Zone": "Kualoa", 
+        "GPS": "Kualoa Ranch", 
+        "Adult": 165, "Child": 75, 
+        "Link": "https://www.kualoa.com/tours/", 
+        "Desc": "Drive your own off-road vehicle."
     },
 
-    # --- ORIGINAL ACTIVITIES ---
+    # --- NEW GROUPON ACTIVITIES ---
+    {"Cat": "Act", "Name": "Snorkel: Turtle Canyon (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 50, "Child": 40, "Link": "https://www.groupon.com/deals/gl-waikiki-turtle-snorkeling-2", "Desc": "Swim with green sea turtles on a guided boat tour."},
+    {"Cat": "Act", "Name": "Adventure: E-Sea Scooters (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 80, "Child": 80, "Link": "https://www.groupon.com/deals/e-sea-diver-31", "Desc": "Ride electric underwater scooters; no diving experience needed."},
+    {"Cat": "Act", "Name": "Boat: Glass Bottom Tour (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 35, "Child": 25, "Link": "https://www.groupon.com/deals/hawaii-glass-bottom-boats", "Desc": "View reefs and marine life through the boat's glass floor."},
+    {"Cat": "Act", "Name": "Tour: Dolphins & You (Groupon)", "Zone": "West", "GPS": "Waianae Small Boat Harbor", "Adult": 130, "Child": 100, "Link": "https://www.groupon.com/deals/gl-and-you-creations-1", "Desc": "Boat tour to swim with wild dolphins + snorkel reef."},
+    {"Cat": "Act", "Name": "Tour: Iruka Dolphin Snorkel (Groupon)", "Zone": "West", "GPS": "Waianae Small Boat Harbor", "Adult": 120, "Child": 90, "Link": "https://www.groupon.com/deals/iruka-hawaii-dolphin", "Desc": "Morning dolphin watching and snorkeling adventure."},
+
+    # --- STANDARD ACTIVITIES ---
     {"Cat": "Act", "Name": "Hotel: Hyatt Place (Rest)", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Link": "https://www.hyatt.com", "Desc": "Rest at hotel."},
     {"Cat": "Act", "Name": "Start: Depart Hotel", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Link": "", "Desc": "Start driving."},
     {"Cat": "Act", "Name": "Travel: Flight to Oahu", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Link": "", "Desc": "Flight In."},
@@ -107,7 +96,6 @@ data_raw = [
     {"Cat": "Act", "Name": "Relax: Waikiki Beach", "Zone": "Waikiki", "GPS": "Waikiki Beach", "Adult": 0, "Child": 0, "Link": "", "Desc": "Free beach time."},
     {"Cat": "Act", "Name": "Swim: Ala Moana Beach", "Zone": "Waikiki", "GPS": "Ala Moana Beach Park", "Adult": 0, "Child": 0, "Link": "", "Desc": "Calm waters for kids."},
     {"Cat": "Act", "Name": "Hike: Diamond Head", "Zone": "Waikiki", "GPS": "Diamond Head State Monument", "Adult": 10, "Child": 0, "Link": "https://gostateparks.hawaii.gov/diamondhead", "Desc": "Famous crater hike."},
-    {"Cat": "Act", "Name": "Kualoa: Jurassic Adv", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 150, "Child": 75, "Link": "https://www.kualoa.com", "Desc": "Movie sites tour."},
     {"Cat": "Act", "Name": "Snorkel: Hanauma Bay", "Zone": "HawaiiKai", "GPS": "Hanauma Bay", "Adult": 25, "Child": 0, "Link": "https://pros9.hnl.info/", "Desc": "Famous reef snorkel."},
     {"Cat": "Act", "Name": "Adventure: Waimea Bay", "Zone": "Waimea", "GPS": "Waimea Bay Beach Park", "Adult": 0, "Child": 0, "Link": "", "Desc": "Jumping rock & beach."},
     {"Cat": "Act", "Name": "Beach: Lanikai Beach", "Zone": "Kailua", "GPS": "Lanikai Beach", "Adult": 0, "Child": 0, "Link": "", "Desc": "White sand beach."},
@@ -120,7 +108,6 @@ data_raw = [
     {"Cat": "Act", "Name": "Beach: Ka'a'awa Beach", "Zone": "Kualoa", "GPS": "Kaaawa Beach Park", "Adult": 0, "Child": 0, "Link": "", "Desc": "Narrow scenic beach."},
     {"Cat": "Act", "Name": "Beach: Waimanalo Bay", "Zone": "Waimanalo", "GPS": "Waimanalo Bay Beach Park", "Adult": 0, "Child": 0, "Link": "", "Desc": "Longest sandy beach."},
     {"Cat": "Act", "Name": "Beach: Makapu'u Tidepools", "Zone": "Waimanalo", "GPS": "Makapuu Tidepools", "Adult": 0, "Child": 0, "Link": "", "Desc": "Tidepools exploration."},
-    {"Cat": "Act", "Name": "Kualoa: UTV Raptor", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 165, "Child": 75, "Link": "", "Desc": "Off-road driving tour."},
     {"Cat": "Act", "Name": "Park: Kualoa Regional", "Zone": "Kualoa", "GPS": "Kualoa Regional Park", "Adult": 0, "Child": 0, "Link": "", "Desc": "Chinaman's Hat view."},
     {"Cat": "Act", "Name": "Garden: Ho'omaluhia", "Zone": "Kaneohe", "GPS": "Hoomaluhia Botanical Garden", "Adult": 0, "Child": 0, "Link": "", "Desc": "Botanical gardens."},
     {"Cat": "Act", "Name": "Lookout: Halona Blowhole", "Zone": "HawaiiKai", "GPS": "Halona Blowhole Lookout", "Adult": 0, "Child": 0, "Link": "", "Desc": "Scenic lookout."},
@@ -147,7 +134,7 @@ data_raw = [
     {"Cat": "Food", "Name": "Lunch: Seven Brothers Burgers", "Zone": "Kahuku", "GPS": "Seven Brothers Burgers Kahuku", "Adult": 20, "Child": 14, "Link": "https://www.sevenbrothersburgers.com", "Desc": "Big burgers."},
     {"Cat": "Food", "Name": "Dinner: Hale Koa Luau", "Zone": "Waikiki", "GPS": "Hale Koa Hotel", "Adult": 86, "Child": 45, "Link": "https://www.halekoa.com", "Desc": "Military luau."},
     {"Cat": "Food", "Name": "Dinner: Paradise Cove Luau", "Zone": "West", "GPS": "Paradise Cove Luau", "Adult": 140, "Child": 110, "Link": "https://www.paradisecove.com", "Desc": "Oceanfront luau."},
-    {"Cat": "Food", "Name": "Dinner: Chief's Luau", "Zone": "West", "GPS": "Chief's Luau", "Adult": 155, "Child": 135, "Link": "https://www.chiefsluau.com", "Desc": "Fire knife dancing."},
+    {"Cat": "Food", "Name": "Dinner: Chief's Luau", "Zone": "West", "GPS": "Chief's Luau", "Adult": 155, "Child": 135, "Link": "https://www.chiefsluau.com", "Desc": "Fire Knife dancing."},
     {"Cat": "Food", "Name": "Dinner: Toa Luau", "Zone": "Waimea", "GPS": "Toa Luau", "Adult": 135, "Child": 105, "Link": "https://www.toaluau.com", "Desc": "Garden setting luau."},
     {"Cat": "Food", "Name": "Dinner: Duke's Waikiki", "Zone": "Waikiki", "GPS": "Duke's Waikiki", "Adult": 50, "Child": 25, "Link": "https://www.dukeswaikiki.com", "Desc": "Dinner on the beach."},
     {"Cat": "Food", "Name": "Dinner: Yard House", "Zone": "Waikiki", "GPS": "Yard House Waikiki", "Adult": 40, "Child": 20, "Link": "", "Desc": "American fusion."},
@@ -177,7 +164,6 @@ base_cost = st.sidebar.number_input("Fixed Package Cost", value=5344, help="Flig
 st.sidebar.markdown("---")
 st.sidebar.header("💰 Savings Tracker")
 
-# DB Values
 db_pkg = float(st.session_state.budget_db.get("Package", 5000.0))
 db_fun = float(st.session_state.budget_db.get("FoodFun", 1500.0))
 
@@ -191,6 +177,7 @@ if st.sidebar.button("💾 Save All Changes", type="primary"):
     current_itin_snapshot = []
     for i in range(50):
         if i in st.session_state:
+            # Only save the slot if it's not a blocked/calculated slot
             current_itin_snapshot.append({"ID": i, "Activity": st.session_state[i]})
     save_all(saved_pkg, saved_fun, current_itin_snapshot)
     st.sidebar.success("Saved!")
@@ -209,7 +196,7 @@ if st.sidebar.button("⚠️ Factory Reset"):
 
 # --- 5. MAIN INTERFACE ---
 st.title("🌺 Oahu Trip App")
-st.caption("Live GPS • Database Connected • 11 Zones")
+st.caption("Live GPS • Database Connected • Smart Itinerary")
 
 days = [
     ("Mon 20", ["Morning (Travel)", "Afternoon (Arr)", "Dinner"]),
@@ -231,10 +218,39 @@ total_food_fun = 0
 prev_zone = "Waikiki"
 slot_counter = 0
 
-for day, slots in days:
-    st.markdown(f"### 📅 {day}")
+# --- SMART LOGIC: FULL DAY TRACKER ---
+# This variable tracks if a "Full Day" package was triggered for the current day
+full_day_active = False 
+
+for day_name, slots in days:
+    st.markdown(f"### 📅 {day_name}")
+    full_day_active = False # Reset at start of each day
     
     for slot_name in slots:
+        # ---------------------------------------------------------
+        # LOGIC: CHECK FOR FULL DAY BLOCKING
+        # ---------------------------------------------------------
+        if full_day_active and (slot_name == "Lunch" or slot_name == "Afternoon"):
+            # RENDER LOCKED SLOT
+            c1, c2 = st.columns([3, 1])
+            with c1:
+                if slot_name == "Lunch":
+                    st.info("🍔 Lunch Included in Full Day Package")
+                else:
+                    st.success("✨ Activity Continued (Full Day)")
+            
+            # Add implicit data to cost (0) and flow
+            cost = 0 
+            # We don't change zone, assume still at Kualoa
+            curr_zone = "Kualoa" 
+            
+            # Increment and continue loop
+            slot_counter += 1
+            st.divider()
+            continue
+        # ---------------------------------------------------------
+
+        # Determine default value
         if slot_counter in st.session_state.itin_db:
             target_val = st.session_state.itin_db[slot_counter]
         elif slot_counter < len(factory_defaults):
@@ -252,6 +268,10 @@ for day, slots in days:
         with c1:
             selected = st.selectbox(f"{slot_name}", all_options, index=default_idx, key=slot_counter, label_visibility="collapsed")
         
+        # CHECK IF FULL DAY WAS SELECTED
+        if "Full Day" in selected:
+            full_day_active = True
+
         row = df[df['Name'] == selected].iloc[0]
         curr_zone = row['Zone']
         gps_target = row['GPS'].replace(" ", "+")
@@ -268,7 +288,6 @@ for day, slots in days:
         with c2:
             st.link_button("📍 GO", live_map_url, type="primary")
 
-        # Display Note/Desc if available
         if "Desc" in row and row["Desc"] and row["Desc"] != "-":
             st.caption(f"ℹ️ {row['Desc']}")
 
