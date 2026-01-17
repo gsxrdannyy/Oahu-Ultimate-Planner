@@ -178,6 +178,56 @@ if st.sidebar.button("💾 Save All Changes", type="primary"):
     st.sidebar.success("Saved!")
     st.session_state.budget_db, st.session_state.itin_db = load_data()
 
+# --- SWAP DAYS TOOL ---
+with st.sidebar.expander("🔄 Swap Days"):
+    swap_days_list = [
+        "Mon 20 (Arrival)", 
+        "Tue 21 (Windward Side)", 
+        "Wed 22 (North Shore)", 
+        "Thu 23 (West/Dolphins)", 
+        "Fri 24 (Departure)"
+    ]
+    day_a = st.selectbox("Swap Day A", swap_days_list, key="swap_a")
+    day_b = st.selectbox("With Day B", swap_days_list, key="swap_b")
+    
+    if st.button("Swap Itinerary"):
+        # Define ranges for all days
+        day_ranges = {
+            "Mon 20 (Arrival)": range(0, 5),
+            "Tue 21 (Windward Side)": range(5, 13),
+            "Wed 22 (North Shore)": range(13, 21),
+            "Thu 23 (West/Dolphins)": range(21, 29),
+            "Fri 24 (Departure)": range(29, 34)
+        }
+        
+        range_a = day_ranges[day_a]
+        range_b = day_ranges[day_b]
+        
+        if len(range_a) != len(range_b):
+            st.error("Cannot swap: Different number of slots (e.g. Travel Day vs Full Day)")
+        else:
+            # Reconstruct current state including defaults
+            current_itin = {}
+            for i in range(34):
+                if i in st.session_state.itin_db:
+                    current_itin[i] = st.session_state.itin_db[i]
+                elif i < len(factory_defaults):
+                    current_itin[i] = factory_defaults[i]
+                else:
+                    current_itin[i] = data_raw[0]['Name']
+            
+            # Perform Swap
+            for idx_a, idx_b in zip(range_a, range_b):
+                val_a = current_itin[idx_a]
+                val_b = current_itin[idx_b]
+                st.session_state.itin_db[idx_a] = val_b
+                st.session_state.itin_db[idx_b] = val_a
+            
+            # Force Save
+            save_button_simulator = True
+            st.success(f"Swapped {day_a} with {day_b}! Click Save to make it permanent.")
+            st.rerun()
+
 # --- NUCLEAR OPTION (Wipe Cloud) ---
 if st.sidebar.button("⚠️ Factory Reset (Wipe Cloud)"):
     st.session_state.itin_db = {}
@@ -217,9 +267,7 @@ def get_current_selections_for_dupe_check():
     temp_counter = 0
     for day_name, day_slots in days:
         for _ in day_slots:
-            if temp_counter in st.session_state:
-                val = st.session_state[temp_counter]
-            elif temp_counter in st.session_state.itin_db:
+            if temp_counter in st.session_state.itin_db:
                 val = st.session_state.itin_db[temp_counter]
             elif temp_counter < len(factory_defaults):
                 val = factory_defaults[temp_counter]
@@ -279,7 +327,6 @@ for day_name, slots in days:
         total_food_fun += cost
         live_map_url = f"https://www.google.com/maps/dir/?api=1&origin=?q={gps_target}+Hawaii"
         
-        # MAP BUTTON
         with c2:
             st.link_button("📍 Map", live_map_url, use_container_width=True)
             
