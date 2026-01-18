@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import re
 from collections import Counter
 from streamlit_gsheets import GSheetsConnection
 
@@ -58,7 +57,7 @@ time_data = [
 ]
 time_df = pd.DataFrame(time_data, index=zones, columns=zones)
 
-# Distance Matrix (Miles)
+# Distances
 dist_data = [
     [2,  9,  25, 30, 35, 40, 22, 12, 15, 18, 10], 
     [9,  0,  18, 25, 30, 38, 20, 12, 18, 22, 18], 
@@ -74,18 +73,31 @@ dist_data = [
 ]
 dist_df = pd.DataFrame(dist_data, index=zones, columns=zones)
 
-# --- SLOT DEFINITIONS (TIME BLOCKS) ---
-# Format: "Label": MilitaryHour (int) for logic
+# --- SLOT DEFINITIONS (NEW TIMINGS) ---
+# Integers used for logic checks
 SLOT_TIMES = {
-    "Start": 8,       # 8:00 AM
-    "Breakfast": 9,   # 9:00 AM
-    "Morning": 10,    # 10:00 AM
-    "Lunch": 13,      # 1:00 PM
-    "Afternoon": 15,  # 3:00 PM
-    "Late Aft": 16,   # 4:00 PM (Critical for closures)
-    "Dinner": 18,     # 6:00 PM
-    "Night": 20,      # 8:00 PM
+    "Start": 6,       # 6:00 AM (Depart)
+    "Breakfast": 6,   # 6:30 AM
+    "Morning": 8,     # 8:00 AM (First Event)
+    "Lunch": 11,      # 11:00 AM
+    "Afternoon": 14,  # 2:00 PM
+    "Late Aft": 17,   # 5:00 PM
+    "Dinner": 19,     # 7:00 PM
+    "Night": 21,      # 9:00 PM
     "End": 22         # 10:00 PM
+}
+
+# Display labels for dropdowns (Pretty 12hr format)
+SLOT_LABELS = {
+    "Start": "6:00 AM",
+    "Breakfast": "6:30 AM",
+    "Morning": "8:00 AM",
+    "Lunch": "11:00 AM",
+    "Afternoon": "2:00 PM",
+    "Late Aft": "5:00 PM",
+    "Dinner": "7:00 PM",
+    "Night": "9:00 PM",
+    "End": "10:00 PM"
 }
 
 # --- MASTER DATABASE ---
@@ -97,8 +109,8 @@ data_raw = [
     {"Cat": "Act", "Name": "[Airport] Travel: Rental Car Pickup", "Zone": "Airport", "GPS": "Enterprise Rent-A-Car", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.enterprise.com", "Desc": "Pick up vehicle.", "Time": "Any", "Dur": "1h", "Hours": "24/7", "LastEntry": 99},
     
     # --- ATTRACTIONS ---
-    {"Cat": "Act", "Name": "[Waimanalo] Attraction: Sea Life Park", "Zone": "Waimanalo", "GPS": "Sea Life Park Hawaii", "Adult": 60, "Child": 50, "Discount": 0.58, "Parking": 9, "Link": "https://www.sealifeparkhawaii.com/", "Desc": "Marine park.", "Time": "Day", "Dur": "3-4h", "Hours": "10am-4pm", "LastEntry": 14}, 
-    {"Cat": "Act", "Name": "[Waikiki] Attraction: Waikiki Aquarium", "Zone": "Waikiki", "GPS": "Waikiki Aquarium", "Adult": 12, "Child": 5, "Discount": 0.33, "Parking": 5, "Link": "https://www.waikikiaquarium.org/", "Desc": "Reef exhibits.", "Time": "Day", "Dur": "1-2h", "Hours": "9am-4:30pm", "LastEntry": 16},
+    {"Cat": "Act", "Name": "[Waimanalo] Attraction: Sea Life Park", "Zone": "Waimanalo", "GPS": "Sea Life Park Hawaii", "Adult": 60, "Child": 50, "Discount": 0.58, "Parking": 9, "Link": "https://www.sealifeparkhawaii.com/", "Desc": "Marine park.", "Time": "Day", "Dur": "3h", "Hours": "10am-4pm", "LastEntry": 14}, 
+    {"Cat": "Act", "Name": "[Waikiki] Attraction: Waikiki Aquarium", "Zone": "Waikiki", "GPS": "Waikiki Aquarium", "Adult": 12, "Child": 5, "Discount": 0.33, "Parking": 5, "Link": "https://www.waikikiaquarium.org/", "Desc": "Reef exhibits.", "Time": "Day", "Dur": "1.5h", "Hours": "9am-4:30pm", "LastEntry": 16},
 
     # --- KUALOA ---
     {"Cat": "Act", "Name": "[Kualoa] Best of Kualoa (Full Day)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 199, "Child": 149, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/packages/", "Desc": "Full Day Pkg.", "Time": "AM", "Dur": "6h", "Hours": "Starts 8:30am", "LastEntry": 9}, 
@@ -107,10 +119,10 @@ data_raw = [
     {"Cat": "Act", "Name": "[Kualoa] UTV Raptor (Tour)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 165, "Child": 75, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/tours/", "Desc": "Off-road.", "Time": "Day", "Dur": "2h", "Hours": "8am-5pm", "LastEntry": 15},
 
     # --- GROUPON ---
-    {"Cat": "Act", "Name": "[Waikiki] Snorkel: Turtle Canyon (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 50, "Child": 40, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/gl-waikiki-turtle-snorkeling-2", "Desc": "Turtle snorkel.", "Time": "Day", "Dur": "2-3h", "Hours": "8am-3pm", "LastEntry": 14},
+    {"Cat": "Act", "Name": "[Waikiki] Snorkel: Turtle Canyon (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 50, "Child": 40, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/gl-waikiki-turtle-snorkeling-2", "Desc": "Turtle snorkel.", "Time": "Day", "Dur": "2.5h", "Hours": "8am-3pm", "LastEntry": 14},
     {"Cat": "Act", "Name": "[Waikiki] Adventure: E-Sea Scooters (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 80, "Child": 80, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/e-sea-diver-31", "Desc": "Scooters.", "Time": "Day", "Dur": "2h", "Hours": "9am-2pm", "LastEntry": 13},
     {"Cat": "Act", "Name": "[Waikiki] Boat: Glass Bottom Tour (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 35, "Child": 25, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/hawaii-glass-bottom-boats", "Desc": "Glass bottom.", "Time": "Day", "Dur": "1h", "Hours": "9am-4pm", "LastEntry": 15},
-    {"Cat": "Act", "Name": "[West] Tour: Dolphins & You (Groupon)", "Zone": "West", "GPS": "Waianae Small Boat Harbor", "Adult": 130, "Child": 100, "Discount": 0, "Parking": 0, "Link": "https://www.groupon.com/deals/gl-and-you-creations-1", "Desc": "Swim w/ dolphins.", "Time": "AM", "Dur": "4-5h", "Hours": "Early (7am/10am)", "LastEntry": 10},
+    {"Cat": "Act", "Name": "[West] Tour: Dolphins & You (Groupon)", "Zone": "West", "GPS": "Waianae Small Boat Harbor", "Adult": 130, "Child": 100, "Discount": 0, "Parking": 0, "Link": "https://www.groupon.com/deals/gl-and-you-creations-1", "Desc": "Swim w/ dolphins.", "Time": "AM", "Dur": "4.5h", "Hours": "Early (7am/10am)", "LastEntry": 10},
     {"Cat": "Act", "Name": "[West] Tour: Iruka Dolphin Snorkel (Groupon)", "Zone": "West", "GPS": "Waianae Small Boat Harbor", "Adult": 120, "Child": 90, "Discount": 0, "Parking": 0, "Link": "https://www.groupon.com/deals/iruka-hawaii-dolphin", "Desc": "Dolphin watch.", "Time": "AM", "Dur": "3h", "Hours": "Early", "LastEntry": 10},
 
     # --- ACTIVITIES ---
@@ -119,14 +131,14 @@ data_raw = [
     {"Cat": "Act", "Name": "[Waikiki] Relax: Waikiki Beach", "Zone": "Waikiki", "GPS": "Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "Flex", "Hours": "Any", "LastEntry": 17},
     {"Cat": "Act", "Name": "[Waikiki] Swim: Ala Moana Beach", "Zone": "Waikiki", "GPS": "Ala Moana Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "Flex", "Hours": "Any", "LastEntry": 17},
     {"Cat": "Act", "Name": "[Waikiki] Hike: Diamond Head", "Zone": "Waikiki", "GPS": "Diamond Head State Monument", "Adult": 10, "Child": 0, "Discount": 1.0, "Parking": 10, "Link": "https://gostateparks.hawaii.gov/diamondhead", "Desc": "Crater Hike.", "Time": "AM", "Dur": "1.5-2h", "Hours": "6am-4pm", "LastEntry": 16},
-    {"Cat": "Act", "Name": "[HawaiiKai] Snorkel: Hanauma Bay", "Zone": "HawaiiKai", "GPS": "Hanauma Bay", "Adult": 25, "Child": 0, "Discount": 1.0, "Parking": 3, "Link": "https://pros9.hnl.info/", "Desc": "Reef Snorkel.", "Time": "AM", "Dur": "3-4h", "Hours": "6:45am-4pm", "LastEntry": 13},
+    {"Cat": "Act", "Name": "[HawaiiKai] Snorkel: Hanauma Bay", "Zone": "HawaiiKai", "GPS": "Hanauma Bay", "Adult": 25, "Child": 0, "Discount": 1.0, "Parking": 3, "Link": "https://pros9.hnl.info/", "Desc": "Reef Snorkel.", "Time": "AM", "Dur": "3h", "Hours": "6:45am-4pm", "LastEntry": 13},
     {"Cat": "Act", "Name": "[Waimea] Adventure: Waimea Bay", "Zone": "Waimea", "GPS": "Waimea Bay Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Jumping rock.", "Time": "Day", "Dur": "2h", "Hours": "Daylight", "LastEntry": 17},
     {"Cat": "Act", "Name": "[Kailua] Beach: Lanikai Beach", "Zone": "Kailua", "GPS": "Lanikai Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "White sand.", "Time": "Day", "Dur": "2h", "Hours": "Daylight", "LastEntry": 17},
     {"Cat": "Act", "Name": "[Haleiwa] Explore: Dole Plantation", "Zone": "Haleiwa", "GPS": "Dole Plantation", "Adult": 9, "Child": 7, "Discount": 0.15, "Parking": 0, "Link": "https://doleplantation.com", "Desc": "Maze/Train.", "Time": "Day", "Dur": "1.5h", "Hours": "9:30am-5:30pm", "LastEntry": 16},
-    {"Cat": "Act", "Name": "[Kahuku] Snorkel: Kuilima Cove", "Zone": "Kahuku", "GPS": "Kuilima Cove", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://turtlebayresort.com", "Desc": "Turtle Bay.", "Time": "Day", "Dur": "1-2h", "Hours": "Daylight", "LastEntry": 17},
-    {"Cat": "Act", "Name": "[Waimea] Snorkel: Shark's Cove", "Zone": "Waimea", "GPS": "Shark's Cove", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Snorkel.", "Time": "Day", "Dur": "1-2h", "Hours": "Daylight", "LastEntry": 17},
+    {"Cat": "Act", "Name": "[Kahuku] Snorkel: Kuilima Cove", "Zone": "Kahuku", "GPS": "Kuilima Cove", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://turtlebayresort.com", "Desc": "Turtle Bay.", "Time": "Day", "Dur": "1.5h", "Hours": "Daylight", "LastEntry": 17},
+    {"Cat": "Act", "Name": "[Waimea] Snorkel: Shark's Cove", "Zone": "Waimea", "GPS": "Shark's Cove", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Snorkel.", "Time": "Day", "Dur": "1.5h", "Hours": "Daylight", "LastEntry": 17},
     {"Cat": "Act", "Name": "[West] Sunset: Ko Olina Lagoons", "Zone": "West", "GPS": "Ko Olina Lagoons", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://koolina.com/", "Desc": "Sunset.", "Time": "PM", "Dur": "1h", "Hours": "Sunset", "LastEntry": 18},
-    {"Cat": "Act", "Name": "[Kailua] Hike: Lanikai Pillbox", "Zone": "Kailua", "GPS": "Lanikai Pillbox", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.alltrails.com/trail/hawaii/oahu/lanikai-pillbox-trail", "Desc": "Ridge Hike.", "Time": "Day", "Dur": "1-1.5h", "Hours": "Daylight", "LastEntry": 16},
+    {"Cat": "Act", "Name": "[Kailua] Hike: Lanikai Pillbox", "Zone": "Kailua", "GPS": "Lanikai Pillbox", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.alltrails.com/trail/hawaii/oahu/lanikai-pillbox-trail", "Desc": "Ridge Hike.", "Time": "Day", "Dur": "1.5h", "Hours": "Daylight", "LastEntry": 16},
     {"Cat": "Act", "Name": "[Kailua] Beach: Kailua Beach Park", "Zone": "Kailua", "GPS": "Kailua Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "2h", "Hours": "Daylight", "LastEntry": 17},
     {"Cat": "Act", "Name": "[Kualoa] Beach: Ka'a'awa Beach", "Zone": "Kualoa", "GPS": "Kaaawa Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "1h", "Hours": "Daylight", "LastEntry": 17},
     {"Cat": "Act", "Name": "[Waimanalo] Beach: Waimanalo Bay", "Zone": "Waimanalo", "GPS": "Waimanalo Bay Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "2h", "Hours": "Daylight", "LastEntry": 17},
@@ -137,8 +149,8 @@ data_raw = [
     {"Cat": "Act", "Name": "[Waikiki] Statue: King Kamehameha", "Zone": "Waikiki", "GPS": "King Kamehameha Statue", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Statue.", "Time": "Any", "Dur": "15m", "Hours": "Any", "LastEntry": 99},
     {"Cat": "Act", "Name": "[Waimea] Hike: Waimea Falls", "Zone": "Waimea", "GPS": "Waimea Valley", "Adult": 25, "Child": 14, "Discount": 0.50, "Parking": 0, "Link": "https://www.waimeavalley.net/", "Desc": "Waterfall.", "Time": "Day", "Dur": "1.5h", "Hours": "9am-4pm", "LastEntry": 15},
     {"Cat": "Act", "Name": "[Kaneohe] Culture: Byodo-In Temple", "Zone": "Kaneohe", "GPS": "Byodo-In Temple", "Adult": 5, "Child": 3, "Discount": 0, "Parking": 0, "Link": "https://byodo-in.com/", "Desc": "Temple.", "Time": "Day", "Dur": "1h", "Hours": "8:30am-4:30pm", "LastEntry": 16},
-    {"Cat": "Act", "Name": "[Waikiki] Museum: Bishop Museum", "Zone": "Waikiki", "GPS": "Bishop Museum", "Adult": 25, "Child": 15, "Discount": 0.20, "Parking": 5, "Link": "https://www.bishopmuseum.org/", "Desc": "History.", "Time": "Day", "Dur": "2-3h", "Hours": "9am-5pm", "LastEntry": 16},
-    {"Cat": "Act", "Name": "[Waikiki] Zoo: Honolulu Zoo", "Zone": "Waikiki", "GPS": "Honolulu Zoo", "Adult": 19, "Child": 11, "Discount": 0, "Parking": 6, "Link": "https://www.honoluluzoo.org/", "Desc": "Zoo.", "Time": "Day", "Dur": "2-3h", "Hours": "10am-3pm", "LastEntry": 14},
+    {"Cat": "Act", "Name": "[Waikiki] Museum: Bishop Museum", "Zone": "Waikiki", "GPS": "Bishop Museum", "Adult": 25, "Child": 15, "Discount": 0.20, "Parking": 5, "Link": "https://www.bishopmuseum.org/", "Desc": "History.", "Time": "Day", "Dur": "2h", "Hours": "9am-5pm", "LastEntry": 16},
+    {"Cat": "Act", "Name": "[Waikiki] Zoo: Honolulu Zoo", "Zone": "Waikiki", "GPS": "Honolulu Zoo", "Adult": 19, "Child": 11, "Discount": 0, "Parking": 6, "Link": "https://www.honoluluzoo.org/", "Desc": "Zoo.", "Time": "Day", "Dur": "2h", "Hours": "10am-3pm", "LastEntry": 14},
     {"Cat": "Act", "Name": "[Waikiki] Show: Free Hula Show", "Zone": "Waikiki", "GPS": "Kuhio Beach Hula Mound", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.kuhiobeachhulas.com/", "Desc": "Hula.", "Time": "PM", "Dur": "1h", "Hours": "Tue/Thu/Sat 6pm", "LastEntry": 18},
     {"Cat": "Act", "Name": "[Waikiki] Night: Fireworks", "Zone": "Waikiki", "GPS": "Hilton Hawaiian Village", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.hiltonhawaiianvillage.com/resort-experiences/entertainment-and-events", "Desc": "Fireworks.", "Time": "PM", "Dur": "15m", "Hours": "Fri 7:45pm", "LastEntry": 19},
     {"Cat": "Act", "Name": "[Haleiwa] Night: Stargazing", "Zone": "Haleiwa", "GPS": "Waialua", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Stars.", "Time": "PM", "Dur": "Flex", "Hours": "Night", "LastEntry": 20},
@@ -187,7 +199,7 @@ if "data_loaded" not in st.session_state:
 st.sidebar.header("⚙️ Trip Settings")
 adults = st.sidebar.number_input("Adults", 1, 10, 2)
 kids = st.sidebar.number_input("Kids", 0, 10, 3)
-base_cost = st.sidebar.number_input("Fixed Package Cost", value=5344, help="Flight + Hotel + Car")
+base_cost = st.sidebar.number_input("Fixed Package Cost", value=6698, help="Flight + Hotel + Car")
 
 st.sidebar.markdown("---")
 st.sidebar.header("⛽ Gas Settings")
@@ -327,16 +339,13 @@ def get_current_selections_for_dupe_check():
 
 # --- HELPER: PARSE DURATION ---
 def parse_duration(dur_str):
-    # Returns hours as float
     if "Flex" in dur_str or "-" == dur_str: return 0.0
     if "h" in dur_str:
-        # "3-4h" -> 4.0
         clean = dur_str.replace("h", "")
         if "-" in clean:
             return float(clean.split("-")[1])
         return float(clean)
     if "m" in dur_str:
-        # "30m" -> 0.5
         clean = dur_str.replace("m", "")
         return float(clean) / 60.0
     return 0.0
@@ -382,25 +391,20 @@ slot_counter = 0
 for day_name, slots in days:
     st.markdown(f"### 📅 {day_name}")
     
-    # Reset busy tracker for the day
     busy_until_hour = 0
     busy_activity_name = ""
     
     for slot_name in slots:
-        # 1. Determine Current Slot Hour
         current_slot_hour = SLOT_TIMES.get(slot_name, 0)
         
-        # 2. Check if Blocked by Previous Activity
+        # BLOCKED STATE
         if current_slot_hour < busy_until_hour:
-            # BLOCKED STATE
             st.info(f"✅ {busy_activity_name} (Continues...)")
             st.caption(f"Busy until {format_12hr(int(busy_until_hour))}")
-            # Do not calculate cost or render selectbox
             slot_counter += 1
             st.divider()
             continue
             
-        # 3. If Not Blocked, Show Selectbox
         if slot_counter in st.session_state.itin_db:
             target_val = st.session_state.itin_db[slot_counter]
         elif slot_counter < len(factory_defaults):
@@ -425,16 +429,13 @@ for day_name, slots in days:
         
         row = df[df['Name'] == selected].iloc[0]
         
-        # 4. Update Blocking Logic
         dur_hours = parse_duration(row.get('Dur', '0'))
-        if dur_hours > 1.5: # Only block if significant duration
-            # Round up to nearest hour
+        if dur_hours > 1.5:
             end_time = current_slot_hour + dur_hours
-            if end_time > current_slot_hour + 1: # Only block NEXT slot if it overlaps
+            if end_time > current_slot_hour + 1:
                 busy_until_hour = end_time
                 busy_activity_name = selected
         
-        # 5. Standard Display Logic
         curr_zone = row['Zone']
         gps_target = row['GPS'].replace(" ", "+")
         
