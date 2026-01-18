@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import re
 from collections import Counter
 from streamlit_gsheets import GSheetsConnection
 
@@ -299,14 +300,10 @@ factory_defaults = [
 
 # --- HELPER: 12-Hour Time Formatter ---
 def format_12hr(military_hour):
-    if military_hour == 0:
-        return "12:00 AM"
-    elif military_hour < 12:
-        return f"{military_hour}:00 AM"
-    elif military_hour == 12:
-        return "12:00 PM"
-    else:
-        return f"{military_hour - 12}:00 PM"
+    if military_hour == 0: return "12 AM"
+    if military_hour < 12: return f"{military_hour} AM"
+    if military_hour == 12: return "12 PM"
+    return f"{military_hour - 12} PM"
 
 # --- HELPER TO CHECK DUPLICATES & TIME ---
 def get_current_selections_for_dupe_check():
@@ -328,6 +325,22 @@ def get_current_selections_for_dupe_check():
             temp_counter += 1
     return current_sel
 
+# --- HELPER: PARSE DURATION ---
+def parse_duration(dur_str):
+    # Returns hours as float
+    if "Flex" in dur_str or "-" == dur_str: return 0.0
+    if "h" in dur_str:
+        # "3-4h" -> 4.0
+        clean = dur_str.replace("h", "")
+        if "-" in clean:
+            return float(clean.split("-")[1])
+        return float(clean)
+    if "m" in dur_str:
+        # "30m" -> 0.5
+        clean = dur_str.replace("m", "")
+        return float(clean) / 60.0
+    return 0.0
+
 # LOGIC TO CHECK TIME CONFLICTS
 def check_time_warning(activity_name, slot_name):
     try:
@@ -335,7 +348,7 @@ def check_time_warning(activity_name, slot_name):
         best_time = act_row.get('Time', 'Any')
         hours = act_row.get('Hours', '-')
         last_entry = act_row.get('LastEntry', 99)
-        slot_hour = SLOT_TIMES.get(slot_name, 12) # Default to noon if unknown
+        slot_hour = SLOT_TIMES.get(slot_name, 12) 
     except:
         return None
 
@@ -344,26 +357,16 @@ def check_time_warning(activity_name, slot_name):
     is_night = any(x in slot_name for x in ["Night", "Dinner"])
     
     warning = None
-    
-    # Check 1: Late Entry
     if slot_hour >= last_entry:
         pretty_last = format_12hr(last_entry)
         return f"⚠️ Too Late! Last entry is {pretty_last}."
-    
-    # Check 2: Stargazing
     if "Stargazing" in activity_name and slot_hour < 19:
         return "⚠️ Better at Night (Stars visible)"
-    
-    # Check 3: Morning Only Activities
-    elif best_time == "AM" and (is_afternoon or is_night):
+    if best_time == "AM" and (is_afternoon or is_night):
         return f"⚠️ Best in Morning ({hours})"
-        
-    # Check 4: Night/Dinner Activities in Morning
-    elif best_time == "PM" and (is_morning or is_afternoon):
+    if best_time == "PM" and (is_morning or is_afternoon):
         return f"⚠️ Evening Activity ({hours})"
-        
-    # Check 5: Day Only (Closed at Night)
-    elif best_time == "Day" and is_night:
+    if best_time == "Day" and is_night:
         return f"⚠️ Closed at Night ({hours})"
         
     return warning
@@ -379,7 +382,25 @@ slot_counter = 0
 for day_name, slots in days:
     st.markdown(f"### 📅 {day_name}")
     
+    # Reset busy tracker for the day
+    busy_until_hour = 0
+    busy_activity_name = ""
+    
     for slot_name in slots:
+        # 1. Determine Current Slot Hour
+        current_slot_hour = SLOT_TIMES.get(slot_name, 0)
+        
+        # 2. Check if Blocked by Previous Activity
+        if current_slot_hour < busy_until_hour:
+            # BLOCKED STATE
+            st.info(f"✅ {busy_activity_name} (Continues...)")
+            st.caption(f"Busy until {format_12hr(int(busy_until_hour))}")
+            # Do not calculate cost or render selectbox
+            slot_counter += 1
+            st.divider()
+            continue
+            
+        # 3. If Not Blocked, Show Selectbox
         if slot_counter in st.session_state.itin_db:
             target_val = st.session_state.itin_db[slot_counter]
         elif slot_counter < len(factory_defaults):
@@ -393,7 +414,6 @@ for day_name, slots in days:
         except ValueError:
             default_idx = 0
             
-        # UI: Selectbox with 12hr Time Label
         slot_label = f"{slot_name}"
         if slot_name in SLOT_TIMES:
             time_display = format_12hr(SLOT_TIMES[slot_name])
@@ -404,6 +424,17 @@ for day_name, slots in days:
             selected = st.selectbox(slot_label, all_options, index=default_idx, key=slot_counter)
         
         row = df[df['Name'] == selected].iloc[0]
+        
+        # 4. Update Blocking Logic
+        dur_hours = parse_duration(row.get('Dur', '0'))
+        if dur_hours > 1.5: # Only block if significant duration
+            # Round up to nearest hour
+            end_time = current_slot_hour + dur_hours
+            if end_time > current_slot_hour + 1: # Only block NEXT slot if it overlaps
+                busy_until_hour = end_time
+                busy_activity_name = selected
+        
+        # 5. Standard Display Logic
         curr_zone = row['Zone']
         gps_target = row['GPS'].replace(" ", "+")
         
@@ -425,17 +456,13 @@ for day_name, slots in days:
         total_miles += miles
         live_map_url = f"https://www.google.com/maps/dir/?api=1&origin=?q={gps_target}+Hawaii"
         
-        # MAP
         with c2:
             st.link_button("📍 Map", live_map_url, use_container_width=True)
-            
-        # WEB
         with c3:
             web_link = row.get('Link', '')
             if web_link:
                 st.link_button("🌍 Web", web_link, use_container_width=True)
 
-        # WARNINGS
         warnings = []
         if not any(x in selected for x in ["Hotel:", "Travel:", "Start:", "End:", "Included"]) and dupe_counts[selected] > 1:
             warnings.append(f"⚠️ Duplicate! Selected {dupe_counts[selected]} times.")
@@ -448,7 +475,6 @@ for day_name, slots in days:
             for w in warnings:
                 st.error(w)
 
-        # INFO LINE
         desc_text = row.get('Desc', '-')
         duration = row.get('Dur', '-')
         hours = row.get('Hours', '-')
