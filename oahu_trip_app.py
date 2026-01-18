@@ -73,98 +73,92 @@ dist_data = [
 ]
 dist_df = pd.DataFrame(dist_data, index=zones, columns=zones)
 
-# --- MASTER DATABASE (With Time Intelligence) ---
-# Tag Logic:
-# 'AM' = Morning Only or Best
-# 'PM' = Evening/Night Only
-# 'Day' = Good for Morning/Afternoon (Sunlight)
-# 'Any' = Anytime
-# 'Food' = Meals
+# --- MASTER DATABASE (Fixed: GPS Added Back) ---
 data_raw = [
     # --- TRAVEL ---
-    {"Cat": "Act", "Name": "[Airport] Travel: Flight to Oahu (ELP->HNL)", "Zone": "Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.google.com/travel/flights", "Desc": "11 hrs from El Paso.", "Time": "Any", "Dur": "11h", "Hours": "24/7"},
-    {"Cat": "Act", "Name": "[Airport] Travel: Flight Home (HNL->ELP)", "Zone": "Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.google.com/travel/flights", "Desc": "10 hrs to El Paso.", "Time": "Any", "Dur": "10h", "Hours": "24/7"},
-    {"Cat": "Act", "Name": "[Airport] Travel: Rental Car Pickup", "Zone": "Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.enterprise.com", "Desc": "Pick up vehicle.", "Time": "Any", "Dur": "1h", "Hours": "24/7"},
+    {"Cat": "Act", "Name": "[Airport] Travel: Flight to Oahu (ELP->HNL)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.google.com/travel/flights", "Desc": "11 hrs from El Paso.", "Time": "Any", "Dur": "11h", "Hours": "24/7"},
+    {"Cat": "Act", "Name": "[Airport] Travel: Flight Home (HNL->ELP)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.google.com/travel/flights", "Desc": "10 hrs to El Paso.", "Time": "Any", "Dur": "10h", "Hours": "24/7"},
+    {"Cat": "Act", "Name": "[Airport] Travel: Rental Car Pickup", "Zone": "Airport", "GPS": "Enterprise Rent-A-Car", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.enterprise.com", "Desc": "Pick up vehicle.", "Time": "Any", "Dur": "1h", "Hours": "24/7"},
     
     # --- ATTRACTIONS ---
-    {"Cat": "Act", "Name": "[Waimanalo] Attraction: Sea Life Park", "Zone": "Waimanalo", "Adult": 60, "Child": 50, "Discount": 0.58, "Parking": 9, "Link": "https://www.sealifeparkhawaii.com/", "Desc": "Marine park.", "Time": "Day", "Dur": "3-4h", "Hours": "10am-4pm"},
-    {"Cat": "Act", "Name": "[Waikiki] Attraction: Waikiki Aquarium", "Zone": "Waikiki", "Adult": 12, "Child": 5, "Discount": 0.33, "Parking": 5, "Link": "https://www.waikikiaquarium.org/", "Desc": "Reef exhibits.", "Time": "Day", "Dur": "1-2h", "Hours": "9am-4:30pm"},
+    {"Cat": "Act", "Name": "[Waimanalo] Attraction: Sea Life Park", "Zone": "Waimanalo", "GPS": "Sea Life Park Hawaii", "Adult": 60, "Child": 50, "Discount": 0.58, "Parking": 9, "Link": "https://www.sealifeparkhawaii.com/", "Desc": "Marine park.", "Time": "Day", "Dur": "3-4h", "Hours": "10am-4pm"},
+    {"Cat": "Act", "Name": "[Waikiki] Attraction: Waikiki Aquarium", "Zone": "Waikiki", "GPS": "Waikiki Aquarium", "Adult": 12, "Child": 5, "Discount": 0.33, "Parking": 5, "Link": "https://www.waikikiaquarium.org/", "Desc": "Reef exhibits.", "Time": "Day", "Dur": "1-2h", "Hours": "9am-4:30pm"},
 
     # --- KUALOA ---
-    {"Cat": "Act", "Name": "[Kualoa] Best of Kualoa (Full Day)", "Zone": "Kualoa", "Adult": 199, "Child": 149, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/packages/", "Desc": "Full Day Pkg.", "Time": "AM", "Dur": "6h", "Hours": "Starts 8:30am"},
-    {"Cat": "Act", "Name": "[Kualoa] ✅ Included in Full Day Pkg", "Zone": "Kualoa", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Activity continues...", "Time": "Any", "Dur": "-", "Hours": "-"},
-    {"Cat": "Act", "Name": "[Kualoa] Jurassic Adv (Tour)", "Zone": "Kualoa", "Adult": 150, "Child": 75, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/tours/", "Desc": "Premium Tour.", "Time": "Day", "Dur": "2.5h", "Hours": "8am-5pm"},
-    {"Cat": "Act", "Name": "[Kualoa] UTV Raptor (Tour)", "Zone": "Kualoa", "Adult": 165, "Child": 75, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/tours/", "Desc": "Off-road.", "Time": "Day", "Dur": "2h", "Hours": "8am-5pm"},
+    {"Cat": "Act", "Name": "[Kualoa] Best of Kualoa (Full Day)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 199, "Child": 149, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/packages/", "Desc": "Full Day Pkg.", "Time": "AM", "Dur": "6h", "Hours": "Starts 8:30am"},
+    {"Cat": "Act", "Name": "[Kualoa] ✅ Included in Full Day Pkg", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Activity continues...", "Time": "Any", "Dur": "-", "Hours": "-"},
+    {"Cat": "Act", "Name": "[Kualoa] Jurassic Adv (Tour)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 150, "Child": 75, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/tours/", "Desc": "Premium Tour.", "Time": "Day", "Dur": "2.5h", "Hours": "8am-5pm"},
+    {"Cat": "Act", "Name": "[Kualoa] UTV Raptor (Tour)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 165, "Child": 75, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/tours/", "Desc": "Off-road.", "Time": "Day", "Dur": "2h", "Hours": "8am-5pm"},
 
     # --- GROUPON ---
-    {"Cat": "Act", "Name": "[Waikiki] Snorkel: Turtle Canyon (Groupon)", "Zone": "Waikiki", "Adult": 50, "Child": 40, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/gl-waikiki-turtle-snorkeling-2", "Desc": "Turtle snorkel.", "Time": "Day", "Dur": "2-3h", "Hours": "8am-3pm"},
-    {"Cat": "Act", "Name": "[Waikiki] Adventure: E-Sea Scooters (Groupon)", "Zone": "Waikiki", "Adult": 80, "Child": 80, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/e-sea-diver-31", "Desc": "Scooters.", "Time": "Day", "Dur": "2h", "Hours": "9am-2pm"},
-    {"Cat": "Act", "Name": "[Waikiki] Boat: Glass Bottom Tour (Groupon)", "Zone": "Waikiki", "Adult": 35, "Child": 25, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/hawaii-glass-bottom-boats", "Desc": "Glass bottom.", "Time": "Day", "Dur": "1h", "Hours": "9am-4pm"},
-    {"Cat": "Act", "Name": "[West] Tour: Dolphins & You (Groupon)", "Zone": "West", "Adult": 130, "Child": 100, "Discount": 0, "Parking": 0, "Link": "https://www.groupon.com/deals/gl-and-you-creations-1", "Desc": "Swim w/ dolphins.", "Time": "AM", "Dur": "4-5h", "Hours": "Early (7am/10am)"},
-    {"Cat": "Act", "Name": "[West] Tour: Iruka Dolphin Snorkel (Groupon)", "Zone": "West", "Adult": 120, "Child": 90, "Discount": 0, "Parking": 0, "Link": "https://www.groupon.com/deals/iruka-hawaii-dolphin", "Desc": "Dolphin watch.", "Time": "AM", "Dur": "3h", "Hours": "Early"},
+    {"Cat": "Act", "Name": "[Waikiki] Snorkel: Turtle Canyon (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 50, "Child": 40, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/gl-waikiki-turtle-snorkeling-2", "Desc": "Turtle snorkel.", "Time": "Day", "Dur": "2-3h", "Hours": "8am-3pm"},
+    {"Cat": "Act", "Name": "[Waikiki] Adventure: E-Sea Scooters (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 80, "Child": 80, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/e-sea-diver-31", "Desc": "Scooters.", "Time": "Day", "Dur": "2h", "Hours": "9am-2pm"},
+    {"Cat": "Act", "Name": "[Waikiki] Boat: Glass Bottom Tour (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 35, "Child": 25, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/hawaii-glass-bottom-boats", "Desc": "Glass bottom.", "Time": "Day", "Dur": "1h", "Hours": "9am-4pm"},
+    {"Cat": "Act", "Name": "[West] Tour: Dolphins & You (Groupon)", "Zone": "West", "GPS": "Waianae Small Boat Harbor", "Adult": 130, "Child": 100, "Discount": 0, "Parking": 0, "Link": "https://www.groupon.com/deals/gl-and-you-creations-1", "Desc": "Swim w/ dolphins.", "Time": "AM", "Dur": "4-5h", "Hours": "Early (7am/10am)"},
+    {"Cat": "Act", "Name": "[West] Tour: Iruka Dolphin Snorkel (Groupon)", "Zone": "West", "GPS": "Waianae Small Boat Harbor", "Adult": 120, "Child": 90, "Discount": 0, "Parking": 0, "Link": "https://www.groupon.com/deals/iruka-hawaii-dolphin", "Desc": "Dolphin watch.", "Time": "AM", "Dur": "3h", "Hours": "Early"},
 
     # --- ACTIVITIES ---
-    {"Cat": "Act", "Name": "[Waikiki] Hotel: Hyatt Place (Return/Rest)", "Zone": "Waikiki", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.hyatt.com", "Desc": "Rest.", "Time": "Any", "Dur": "-", "Hours": "24/7"},
-    {"Cat": "Act", "Name": "[Waikiki] Start: Depart Hotel (Hyatt Place)", "Zone": "Waikiki", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Start.", "Time": "Any", "Dur": "-", "Hours": "-"},
-    {"Cat": "Act", "Name": "[Waikiki] Relax: Waikiki Beach", "Zone": "Waikiki", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "Flex", "Hours": "Any"},
-    {"Cat": "Act", "Name": "[Waikiki] Swim: Ala Moana Beach", "Zone": "Waikiki", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "Flex", "Hours": "Any"},
-    {"Cat": "Act", "Name": "[Waikiki] Hike: Diamond Head", "Zone": "Waikiki", "Adult": 10, "Child": 0, "Discount": 1.0, "Parking": 10, "Link": "https://gostateparks.hawaii.gov/diamondhead", "Desc": "Crater Hike.", "Time": "AM", "Dur": "1.5-2h", "Hours": "6am-4pm (Last entry 4p)"},
-    {"Cat": "Act", "Name": "[HawaiiKai] Snorkel: Hanauma Bay", "Zone": "HawaiiKai", "Adult": 25, "Child": 0, "Discount": 1.0, "Parking": 3, "Link": "https://pros9.hnl.info/", "Desc": "Reef Snorkel.", "Time": "AM", "Dur": "3-4h", "Hours": "6:45am-4pm (Closed Mon/Tue)"},
-    {"Cat": "Act", "Name": "[Waimea] Adventure: Waimea Bay", "Zone": "Waimea", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Jumping rock.", "Time": "Day", "Dur": "2h", "Hours": "Daylight"},
-    {"Cat": "Act", "Name": "[Kailua] Beach: Lanikai Beach", "Zone": "Kailua", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "White sand.", "Time": "Day", "Dur": "2h", "Hours": "Daylight"},
-    {"Cat": "Act", "Name": "[Haleiwa] Explore: Dole Plantation", "Zone": "Haleiwa", "Adult": 9, "Child": 7, "Discount": 0.15, "Parking": 0, "Link": "https://doleplantation.com", "Desc": "Maze/Train.", "Time": "Day", "Dur": "1.5h", "Hours": "9:30am-5:30pm"},
-    {"Cat": "Act", "Name": "[Kahuku] Snorkel: Kuilima Cove", "Zone": "Kahuku", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://turtlebayresort.com", "Desc": "Turtle Bay.", "Time": "Day", "Dur": "1-2h", "Hours": "Daylight"},
-    {"Cat": "Act", "Name": "[Waimea] Snorkel: Shark's Cove", "Zone": "Waimea", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Snorkel.", "Time": "Day", "Dur": "1-2h", "Hours": "Daylight"},
-    {"Cat": "Act", "Name": "[West] Sunset: Ko Olina Lagoons", "Zone": "West", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://koolina.com/", "Desc": "Sunset.", "Time": "PM", "Dur": "1h", "Hours": "Sunset"},
-    {"Cat": "Act", "Name": "[Kailua] Hike: Lanikai Pillbox", "Zone": "Kailua", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.alltrails.com/trail/hawaii/oahu/lanikai-pillbox-trail", "Desc": "Ridge Hike.", "Time": "Day", "Dur": "1-1.5h", "Hours": "Daylight"},
-    {"Cat": "Act", "Name": "[Kailua] Beach: Kailua Beach Park", "Zone": "Kailua", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "2h", "Hours": "Daylight"},
-    {"Cat": "Act", "Name": "[Kualoa] Beach: Ka'a'awa Beach", "Zone": "Kualoa", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "1h", "Hours": "Daylight"},
-    {"Cat": "Act", "Name": "[Waimanalo] Beach: Waimanalo Bay", "Zone": "Waimanalo", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "2h", "Hours": "Daylight"},
-    {"Cat": "Act", "Name": "[Waimanalo] Beach: Makapu'u Tidepools", "Zone": "Waimanalo", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Tidepools.", "Time": "Day", "Dur": "2h", "Hours": "Daylight"},
-    {"Cat": "Act", "Name": "[Kualoa] Park: Kualoa Regional", "Zone": "Kualoa", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "View.", "Time": "Day", "Dur": "30m", "Hours": "7am-8pm"},
-    {"Cat": "Act", "Name": "[Kaneohe] Garden: Ho'omaluhia", "Zone": "Kaneohe", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.honolulu.gov/parks/hbg/hmbg.html", "Desc": "Botanic Garden.", "Time": "Day", "Dur": "1h", "Hours": "9am-4pm"},
-    {"Cat": "Act", "Name": "[HawaiiKai] Lookout: Halona Blowhole", "Zone": "HawaiiKai", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Lookout.", "Time": "Any", "Dur": "15m", "Hours": "Any"},
-    {"Cat": "Act", "Name": "[Waikiki] Statue: King Kamehameha", "Zone": "Waikiki", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Statue.", "Time": "Any", "Dur": "15m", "Hours": "Any"},
-    {"Cat": "Act", "Name": "[Waimea] Hike: Waimea Falls", "Zone": "Waimea", "Adult": 25, "Child": 14, "Discount": 0.50, "Parking": 0, "Link": "https://www.waimeavalley.net/", "Desc": "Waterfall.", "Time": "Day", "Dur": "1.5h", "Hours": "9am-4pm"},
-    {"Cat": "Act", "Name": "[Kaneohe] Culture: Byodo-In Temple", "Zone": "Kaneohe", "Adult": 5, "Child": 3, "Discount": 0, "Parking": 0, "Link": "https://byodo-in.com/", "Desc": "Temple.", "Time": "Day", "Dur": "1h", "Hours": "8:30am-4:30pm"},
-    {"Cat": "Act", "Name": "[Waikiki] Museum: Bishop Museum", "Zone": "Waikiki", "Adult": 25, "Child": 15, "Discount": 0.20, "Parking": 5, "Link": "https://www.bishopmuseum.org/", "Desc": "History.", "Time": "Day", "Dur": "2-3h", "Hours": "9am-5pm"},
-    {"Cat": "Act", "Name": "[Waikiki] Zoo: Honolulu Zoo", "Zone": "Waikiki", "Adult": 19, "Child": 11, "Discount": 0, "Parking": 6, "Link": "https://www.honoluluzoo.org/", "Desc": "Zoo.", "Time": "Day", "Dur": "2-3h", "Hours": "10am-3pm"},
-    {"Cat": "Act", "Name": "[Waikiki] Show: Free Hula Show", "Zone": "Waikiki", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.kuhiobeachhulas.com/", "Desc": "Hula.", "Time": "PM", "Dur": "1h", "Hours": "Tue/Thu/Sat 6pm"},
-    {"Cat": "Act", "Name": "[Waikiki] Night: Fireworks", "Zone": "Waikiki", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.hiltonhawaiianvillage.com/resort-experiences/entertainment-and-events", "Desc": "Fireworks.", "Time": "PM", "Dur": "15m", "Hours": "Fri 7:45pm"},
-    {"Cat": "Act", "Name": "[Haleiwa] Night: Stargazing", "Zone": "Haleiwa", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Stars.", "Time": "PM", "Dur": "Flex", "Hours": "Night"},
-    {"Cat": "Act", "Name": "(Select Activity)", "Zone": "Waikiki", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "-", "Time": "Any", "Dur": "-", "Hours": "-"},
+    {"Cat": "Act", "Name": "[Waikiki] Hotel: Hyatt Place (Return/Rest)", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.hyatt.com", "Desc": "Rest.", "Time": "Any", "Dur": "-", "Hours": "24/7"},
+    {"Cat": "Act", "Name": "[Waikiki] Start: Depart Hotel (Hyatt Place)", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Start.", "Time": "Any", "Dur": "-", "Hours": "-"},
+    {"Cat": "Act", "Name": "[Waikiki] Relax: Waikiki Beach", "Zone": "Waikiki", "GPS": "Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "Flex", "Hours": "Any"},
+    {"Cat": "Act", "Name": "[Waikiki] Swim: Ala Moana Beach", "Zone": "Waikiki", "GPS": "Ala Moana Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "Flex", "Hours": "Any"},
+    {"Cat": "Act", "Name": "[Waikiki] Hike: Diamond Head", "Zone": "Waikiki", "GPS": "Diamond Head State Monument", "Adult": 10, "Child": 0, "Discount": 1.0, "Parking": 10, "Link": "https://gostateparks.hawaii.gov/diamondhead", "Desc": "Crater Hike.", "Time": "AM", "Dur": "1.5-2h", "Hours": "6am-4pm (Last entry 4p)"},
+    {"Cat": "Act", "Name": "[HawaiiKai] Snorkel: Hanauma Bay", "Zone": "HawaiiKai", "GPS": "Hanauma Bay", "Adult": 25, "Child": 0, "Discount": 1.0, "Parking": 3, "Link": "https://pros9.hnl.info/", "Desc": "Reef Snorkel.", "Time": "AM", "Dur": "3-4h", "Hours": "6:45am-4pm (Closed Mon/Tue)"},
+    {"Cat": "Act", "Name": "[Waimea] Adventure: Waimea Bay", "Zone": "Waimea", "GPS": "Waimea Bay Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Jumping rock.", "Time": "Day", "Dur": "2h", "Hours": "Daylight"},
+    {"Cat": "Act", "Name": "[Kailua] Beach: Lanikai Beach", "Zone": "Kailua", "GPS": "Lanikai Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "White sand.", "Time": "Day", "Dur": "2h", "Hours": "Daylight"},
+    {"Cat": "Act", "Name": "[Haleiwa] Explore: Dole Plantation", "Zone": "Haleiwa", "GPS": "Dole Plantation", "Adult": 9, "Child": 7, "Discount": 0.15, "Parking": 0, "Link": "https://doleplantation.com", "Desc": "Maze/Train.", "Time": "Day", "Dur": "1.5h", "Hours": "9:30am-5:30pm"},
+    {"Cat": "Act", "Name": "[Kahuku] Snorkel: Kuilima Cove", "Zone": "Kahuku", "GPS": "Kuilima Cove", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://turtlebayresort.com", "Desc": "Turtle Bay.", "Time": "Day", "Dur": "1-2h", "Hours": "Daylight"},
+    {"Cat": "Act", "Name": "[Waimea] Snorkel: Shark's Cove", "Zone": "Waimea", "GPS": "Shark's Cove", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Snorkel.", "Time": "Day", "Dur": "1-2h", "Hours": "Daylight"},
+    {"Cat": "Act", "Name": "[West] Sunset: Ko Olina Lagoons", "Zone": "West", "GPS": "Ko Olina Lagoons", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://koolina.com/", "Desc": "Sunset.", "Time": "PM", "Dur": "1h", "Hours": "Sunset"},
+    {"Cat": "Act", "Name": "[Kailua] Hike: Lanikai Pillbox", "Zone": "Kailua", "GPS": "Lanikai Pillbox", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.alltrails.com/trail/hawaii/oahu/lanikai-pillbox-trail", "Desc": "Ridge Hike.", "Time": "Day", "Dur": "1-1.5h", "Hours": "Daylight"},
+    {"Cat": "Act", "Name": "[Kailua] Beach: Kailua Beach Park", "Zone": "Kailua", "GPS": "Kailua Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "2h", "Hours": "Daylight"},
+    {"Cat": "Act", "Name": "[Kualoa] Beach: Ka'a'awa Beach", "Zone": "Kualoa", "GPS": "Kaaawa Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "1h", "Hours": "Daylight"},
+    {"Cat": "Act", "Name": "[Waimanalo] Beach: Waimanalo Bay", "Zone": "Waimanalo", "GPS": "Waimanalo Bay Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "2h", "Hours": "Daylight"},
+    {"Cat": "Act", "Name": "[Waimanalo] Beach: Makapu'u Tidepools", "Zone": "Waimanalo", "GPS": "Makapuu Tidepools", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Tidepools.", "Time": "Day", "Dur": "2h", "Hours": "Daylight"},
+    {"Cat": "Act", "Name": "[Kualoa] Park: Kualoa Regional", "Zone": "Kualoa", "GPS": "Kualoa Regional Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "View.", "Time": "Day", "Dur": "30m", "Hours": "7am-8pm"},
+    {"Cat": "Act", "Name": "[Kaneohe] Garden: Ho'omaluhia", "Zone": "Kaneohe", "GPS": "Hoomaluhia Botanical Garden", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.honolulu.gov/parks/hbg/hmbg.html", "Desc": "Botanic Garden.", "Time": "Day", "Dur": "1h", "Hours": "9am-4pm"},
+    {"Cat": "Act", "Name": "[HawaiiKai] Lookout: Halona Blowhole", "Zone": "HawaiiKai", "GPS": "Halona Blowhole Lookout", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Lookout.", "Time": "Any", "Dur": "15m", "Hours": "Any"},
+    {"Cat": "Act", "Name": "[Waikiki] Statue: King Kamehameha", "Zone": "Waikiki", "GPS": "King Kamehameha Statue", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Statue.", "Time": "Any", "Dur": "15m", "Hours": "Any"},
+    {"Cat": "Act", "Name": "[Waimea] Hike: Waimea Falls", "Zone": "Waimea", "GPS": "Waimea Valley", "Adult": 25, "Child": 14, "Discount": 0.50, "Parking": 0, "Link": "https://www.waimeavalley.net/", "Desc": "Waterfall.", "Time": "Day", "Dur": "1.5h", "Hours": "9am-4pm"},
+    {"Cat": "Act", "Name": "[Kaneohe] Culture: Byodo-In Temple", "Zone": "Kaneohe", "GPS": "Byodo-In Temple", "Adult": 5, "Child": 3, "Discount": 0, "Parking": 0, "Link": "https://byodo-in.com/", "Desc": "Temple.", "Time": "Day", "Dur": "1h", "Hours": "8:30am-4:30pm"},
+    {"Cat": "Act", "Name": "[Waikiki] Museum: Bishop Museum", "Zone": "Waikiki", "GPS": "Bishop Museum", "Adult": 25, "Child": 15, "Discount": 0.20, "Parking": 5, "Link": "https://www.bishopmuseum.org/", "Desc": "History.", "Time": "Day", "Dur": "2-3h", "Hours": "9am-5pm"},
+    {"Cat": "Act", "Name": "[Waikiki] Zoo: Honolulu Zoo", "Zone": "Waikiki", "GPS": "Honolulu Zoo", "Adult": 19, "Child": 11, "Discount": 0, "Parking": 6, "Link": "https://www.honoluluzoo.org/", "Desc": "Zoo.", "Time": "Day", "Dur": "2-3h", "Hours": "10am-3pm"},
+    {"Cat": "Act", "Name": "[Waikiki] Show: Free Hula Show", "Zone": "Waikiki", "GPS": "Kuhio Beach Hula Mound", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.kuhiobeachhulas.com/", "Desc": "Hula.", "Time": "PM", "Dur": "1h", "Hours": "Tue/Thu/Sat 6pm"},
+    {"Cat": "Act", "Name": "[Waikiki] Night: Fireworks", "Zone": "Waikiki", "GPS": "Hilton Hawaiian Village", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.hiltonhawaiianvillage.com/resort-experiences/entertainment-and-events", "Desc": "Fireworks.", "Time": "PM", "Dur": "15m", "Hours": "Fri 7:45pm"},
+    {"Cat": "Act", "Name": "[Haleiwa] Night: Stargazing", "Zone": "Haleiwa", "GPS": "Waialua", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Stars.", "Time": "PM", "Dur": "Flex", "Hours": "Night"},
+    {"Cat": "Act", "Name": "(Select Activity)", "Zone": "Waikiki", "GPS": "Waikiki", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "-", "Time": "Any", "Dur": "-", "Hours": "-"},
     
     # --- FOOD ---
-    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Hotel Buffet", "Zone": "Waikiki", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Buffet.", "Time": "AM", "Dur": "45m", "Hours": "6am-10am"},
-    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Leonard's Bakery", "Zone": "Waikiki", "Adult": 10, "Child": 10, "Discount": 0, "Parking": 0, "Link": "https://www.leonardshawaii.com/", "Desc": "Bakery.", "Time": "AM", "Dur": "30m", "Hours": "5:30am-9pm"},
-    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Duke's Waikiki", "Zone": "Waikiki", "Adult": 29, "Child": 16, "Discount": 0, "Parking": 6, "Link": "https://www.dukeswaikiki.com", "Desc": "Buffet.", "Time": "AM", "Dur": "1h", "Hours": "7am-11am"},
-    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Eggs 'n Things", "Zone": "Waikiki", "Adult": 25, "Child": 15, "Discount": 0.10, "Parking": 0, "Link": "https://eggsnthings.com", "Desc": "Pancakes.", "Time": "AM", "Dur": "1h", "Hours": "6am-2pm"},
-    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Musubi Cafe Iyasume", "Zone": "Waikiki", "Adult": 8, "Child": 8, "Discount": 0, "Parking": 0, "Link": "https://iyasumehawaii.com/", "Desc": "Musubis.", "Time": "Any", "Dur": "15m", "Hours": "7am-8pm"},
-    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Liliha Bakery", "Zone": "Waikiki", "Adult": 22, "Child": 15, "Discount": 0, "Parking": 0, "Link": "https://www.lilihabakery.com", "Desc": "Diner.", "Time": "Any", "Dur": "1h", "Hours": "7am-10pm"},
-    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Cinnamon's", "Zone": "Waikiki", "Adult": 25, "Child": 15, "Discount": 0, "Parking": 1, "Link": "https://cinnamons808.com", "Desc": "Pancakes.", "Time": "AM", "Dur": "1h", "Hours": "7am-2pm"},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Hale Koa Luau", "Zone": "Waikiki", "Adult": 86, "Child": 45, "Discount": 0, "Parking": 15, "Link": "https://www.halekoa.com", "Desc": "Luau.", "Time": "PM", "Dur": "3h", "Hours": "5pm"},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Duke's Waikiki", "Zone": "Waikiki", "Adult": 50, "Child": 25, "Discount": 0, "Parking": 6, "Link": "https://www.dukeswaikiki.com", "Desc": "Dinner.", "Time": "PM", "Dur": "1.5h", "Hours": "4:45pm-9pm"},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Yard House", "Zone": "Waikiki", "Adult": 40, "Child": 20, "Discount": 0.10, "Parking": 0, "Link": "https://www.yardhouse.com/locations/hi/honolulu/waikiki-beach-walk/8316", "Desc": "Fusion.", "Time": "PM", "Dur": "1.5h", "Hours": "11am-1am"},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Marukame Udon", "Zone": "Waikiki", "Adult": 18, "Child": 12, "Discount": 0, "Parking": 0, "Link": "https://www.marugameudon.com/", "Desc": "Udon.", "Time": "PM", "Dur": "1h", "Hours": "10am-10pm"},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Rainbow Drive-In", "Zone": "Waikiki", "Adult": 18, "Child": 14, "Discount": 0, "Parking": 0, "Link": "https://rainbowdrivein.com/", "Desc": "Plate Lunch.", "Time": "Any", "Dur": "45m", "Hours": "7am-9pm"},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Maui Brewing Co.", "Zone": "Waikiki", "Adult": 35, "Child": 18, "Discount": 0, "Parking": 6, "Link": "https://mauibrewingco.com/waikiki/", "Desc": "Brewpub.", "Time": "PM", "Dur": "1.5h", "Hours": "11am-10pm"},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Paia Fish Market", "Zone": "Waikiki", "Adult": 28, "Child": 18, "Discount": 0, "Parking": 0, "Link": "https://paiafishmarket.com/", "Desc": "Fish.", "Time": "PM", "Dur": "1h", "Hours": "10am-9:30pm"},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Cheesecake Factory", "Zone": "Waikiki", "Adult": 35, "Child": 18, "Discount": 0, "Parking": 0, "Link": "https://www.thecheesecakefactory.com/locations/honolulu-hi", "Desc": "Dinner.", "Time": "PM", "Dur": "1.5h", "Hours": "11am-11pm"},
-    {"Cat": "Food", "Name": "[Waikiki] Dinner: Zippy's", "Zone": "Waikiki", "Adult": 20, "Child": 14, "Discount": 0, "Parking": 0, "Link": "https://www.zippys.com/", "Desc": "Diner.", "Time": "Any", "Dur": "1h", "Hours": "24/7"},
+    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Hotel Buffet", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Buffet.", "Time": "AM", "Dur": "45m", "Hours": "6am-10am"},
+    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Leonard's Bakery", "Zone": "Waikiki", "GPS": "Leonard's Bakery", "Adult": 10, "Child": 10, "Discount": 0, "Parking": 0, "Link": "https://www.leonardshawaii.com/", "Desc": "Bakery.", "Time": "AM", "Dur": "30m", "Hours": "5:30am-9pm"},
+    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Duke's Waikiki", "Zone": "Waikiki", "GPS": "Duke's Waikiki", "Adult": 29, "Child": 16, "Discount": 0, "Parking": 6, "Link": "https://www.dukeswaikiki.com", "Desc": "Buffet.", "Time": "AM", "Dur": "1h", "Hours": "7am-11am"},
+    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Eggs 'n Things", "Zone": "Waikiki", "GPS": "Eggs 'n Things Saratoga", "Adult": 25, "Child": 15, "Discount": 0.10, "Parking": 0, "Link": "https://eggsnthings.com", "Desc": "Pancakes.", "Time": "AM", "Dur": "1h", "Hours": "6am-2pm"},
+    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Musubi Cafe Iyasume", "Zone": "Waikiki", "GPS": "Musubi Cafe Iyasume", "Adult": 8, "Child": 8, "Discount": 0, "Parking": 0, "Link": "https://iyasumehawaii.com/", "Desc": "Musubis.", "Time": "Any", "Dur": "15m", "Hours": "7am-8pm"},
+    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Liliha Bakery", "Zone": "Waikiki", "GPS": "Liliha Bakery", "Adult": 22, "Child": 15, "Discount": 0, "Parking": 0, "Link": "https://www.lilihabakery.com", "Desc": "Diner.", "Time": "Any", "Dur": "1h", "Hours": "7am-10pm"},
+    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Cinnamon's", "Zone": "Waikiki", "GPS": "Cinnamon's at the Ilikai", "Adult": 25, "Child": 15, "Discount": 0, "Parking": 1, "Link": "https://cinnamons808.com", "Desc": "Pancakes.", "Time": "AM", "Dur": "1h", "Hours": "7am-2pm"},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Hale Koa Luau", "Zone": "Waikiki", "GPS": "Hale Koa Hotel", "Adult": 86, "Child": 45, "Discount": 0, "Parking": 15, "Link": "https://www.halekoa.com", "Desc": "Luau.", "Time": "PM", "Dur": "3h", "Hours": "5pm"},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Duke's Waikiki", "Zone": "Waikiki", "GPS": "Duke's Waikiki", "Adult": 50, "Child": 25, "Discount": 0, "Parking": 6, "Link": "https://www.dukeswaikiki.com", "Desc": "Dinner.", "Time": "PM", "Dur": "1.5h", "Hours": "4:45pm-9pm"},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Yard House", "Zone": "Waikiki", "GPS": "Yard House Waikiki", "Adult": 40, "Child": 20, "Discount": 0.10, "Parking": 0, "Link": "https://www.yardhouse.com/locations/hi/honolulu/waikiki-beach-walk/8316", "Desc": "Fusion.", "Time": "PM", "Dur": "1.5h", "Hours": "11am-1am"},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Marukame Udon", "Zone": "Waikiki", "GPS": "Marukame Udon Waikiki", "Adult": 18, "Child": 12, "Discount": 0, "Parking": 0, "Link": "https://www.marugameudon.com/", "Desc": "Udon.", "Time": "PM", "Dur": "1h", "Hours": "10am-10pm"},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Rainbow Drive-In", "Zone": "Waikiki", "GPS": "Rainbow Drive-In", "Adult": 18, "Child": 14, "Discount": 0, "Parking": 0, "Link": "https://rainbowdrivein.com/", "Desc": "Plate Lunch.", "Time": "Any", "Dur": "45m", "Hours": "7am-9pm"},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Maui Brewing Co.", "Zone": "Waikiki", "GPS": "Maui Brewing Co Waikiki", "Adult": 35, "Child": 18, "Discount": 0, "Parking": 6, "Link": "https://mauibrewingco.com/waikiki/", "Desc": "Brewpub.", "Time": "PM", "Dur": "1.5h", "Hours": "11am-10pm"},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Paia Fish Market", "Zone": "Waikiki", "GPS": "Paia Fish Market Waikiki", "Adult": 28, "Child": 18, "Discount": 0, "Parking": 0, "Link": "https://paiafishmarket.com/", "Desc": "Fish.", "Time": "PM", "Dur": "1h", "Hours": "10am-9:30pm"},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Cheesecake Factory", "Zone": "Waikiki", "GPS": "The Cheesecake Factory Honolulu", "Adult": 35, "Child": 18, "Discount": 0, "Parking": 0, "Link": "https://www.thecheesecakefactory.com/locations/honolulu-hi", "Desc": "Dinner.", "Time": "PM", "Dur": "1.5h", "Hours": "11am-11pm"},
+    {"Cat": "Food", "Name": "[Waikiki] Dinner: Zippy's", "Zone": "Waikiki", "GPS": "Zippy's Kapahulu", "Adult": 20, "Child": 14, "Discount": 0, "Parking": 0, "Link": "https://www.zippys.com/", "Desc": "Diner.", "Time": "Any", "Dur": "1h", "Hours": "24/7"},
     
-    {"Cat": "Food", "Name": "[Haleiwa] Breakfast: Kono's", "Zone": "Haleiwa", "Adult": 18, "Child": 18, "Discount": 0.10, "Parking": 0, "Link": "https://www.konosnorthshore.com", "Desc": "Pork.", "Time": "AM", "Dur": "45m", "Hours": "7am-2pm"},
-    {"Cat": "Food", "Name": "[Haleiwa] Snack: Matsumoto Shave Ice", "Zone": "Haleiwa", "Adult": 8, "Child": 8, "Discount": 0, "Parking": 0, "Link": "https://matsumotoshaveice.com/", "Desc": "Ice.", "Time": "Day", "Dur": "30m", "Hours": "10am-6pm"},
-    {"Cat": "Food", "Name": "[Haleiwa] Snack: Dole Whip", "Zone": "Haleiwa", "Adult": 9, "Child": 9, "Discount": 0, "Parking": 0, "Link": "https://doleplantation.com", "Desc": "Dole Whip.", "Time": "Day", "Dur": "30m", "Hours": "9:30am-5:30pm"},
+    {"Cat": "Food", "Name": "[Haleiwa] Breakfast: Kono's", "Zone": "Haleiwa", "GPS": "Kono's North Shore", "Adult": 18, "Child": 18, "Discount": 0.10, "Parking": 0, "Link": "https://www.konosnorthshore.com", "Desc": "Pork.", "Time": "AM", "Dur": "45m", "Hours": "7am-2pm"},
+    {"Cat": "Food", "Name": "[Haleiwa] Snack: Matsumoto Shave Ice", "Zone": "Haleiwa", "GPS": "Matsumoto Shave Ice", "Adult": 8, "Child": 8, "Discount": 0, "Parking": 0, "Link": "https://matsumotoshaveice.com/", "Desc": "Ice.", "Time": "Day", "Dur": "30m", "Hours": "10am-6pm"},
+    {"Cat": "Food", "Name": "[Haleiwa] Snack: Dole Whip", "Zone": "Haleiwa", "GPS": "Dole Plantation", "Adult": 9, "Child": 9, "Discount": 0, "Parking": 0, "Link": "https://doleplantation.com", "Desc": "Dole Whip.", "Time": "Day", "Dur": "30m", "Hours": "9:30am-5:30pm"},
     
-    {"Cat": "Food", "Name": "[Kahuku] Lunch: Giovanni's Shrimp", "Zone": "Kahuku", "Adult": 20, "Child": 15, "Discount": 0, "Parking": 2, "Link": "https://giovannisshrimptruck.com", "Desc": "Shrimp.", "Time": "Day", "Dur": "45m", "Hours": "10:30am-6:30pm"},
-    {"Cat": "Food", "Name": "[Kahuku] Dinner: Seven Brothers", "Zone": "Kahuku", "Adult": 20, "Child": 14, "Discount": 0, "Parking": 0, "Link": "https://www.sevenbrothersburgers.com/", "Desc": "Burgers.", "Time": "PM", "Dur": "1h", "Hours": "11am-9pm"},
+    {"Cat": "Food", "Name": "[Kahuku] Lunch: Giovanni's Shrimp", "Zone": "Kahuku", "GPS": "Giovanni's Shrimp Truck", "Adult": 20, "Child": 15, "Discount": 0, "Parking": 2, "Link": "https://giovannisshrimptruck.com", "Desc": "Shrimp.", "Time": "Day", "Dur": "45m", "Hours": "10:30am-6:30pm"},
+    {"Cat": "Food", "Name": "[Kahuku] Dinner: Seven Brothers", "Zone": "Kahuku", "GPS": "Seven Brothers Burgers Kahuku", "Adult": 20, "Child": 14, "Discount": 0, "Parking": 0, "Link": "https://www.sevenbrothersburgers.com/", "Desc": "Burgers.", "Time": "PM", "Dur": "1h", "Hours": "11am-9pm"},
     
-    {"Cat": "Food", "Name": "[Kaneohe] Lunch: McDonald's", "Zone": "Kaneohe", "Adult": 12, "Child": 10, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Fast Food.", "Time": "Any", "Dur": "30m", "Hours": "24/7"},
+    {"Cat": "Food", "Name": "[Kaneohe] Lunch: McDonald's", "Zone": "Kaneohe", "GPS": "McDonald's Kaneohe", "Adult": 12, "Child": 10, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Fast Food.", "Time": "Any", "Dur": "30m", "Hours": "24/7"},
     
-    {"Cat": "Food", "Name": "[West] Dinner: Paradise Cove Luau", "Zone": "West", "Adult": 140, "Child": 110, "Discount": 0.15, "Parking": 0, "Link": "https://www.paradisecove.com", "Desc": "Luau.", "Time": "PM", "Dur": "3-4h", "Hours": "5pm"},
-    {"Cat": "Food", "Name": "[West] Dinner: Chief's Luau", "Zone": "West", "Adult": 155, "Child": 135, "Discount": 0.15, "Parking": 0, "Link": "https://www.chiefsluau.com", "Desc": "Luau.", "Time": "PM", "Dur": "3-4h", "Hours": "5pm"},
+    {"Cat": "Food", "Name": "[West] Dinner: Paradise Cove Luau", "Zone": "West", "GPS": "Paradise Cove Luau", "Adult": 140, "Child": 110, "Discount": 0.15, "Parking": 0, "Link": "https://www.paradisecove.com", "Desc": "Luau.", "Time": "PM", "Dur": "3-4h", "Hours": "5pm"},
+    {"Cat": "Food", "Name": "[West] Dinner: Chief's Luau", "Zone": "West", "GPS": "Chief's Luau", "Adult": 155, "Child": 135, "Discount": 0.15, "Parking": 0, "Link": "https://www.chiefsluau.com", "Desc": "Luau.", "Time": "PM", "Dur": "3-4h", "Hours": "5pm"},
     
-    {"Cat": "Food", "Name": "[Waimea] Dinner: Toa Luau", "Zone": "Waimea", "Adult": 135, "Child": 105, "Discount": 0.15, "Parking": 0, "Link": "https://www.toaluau.com", "Desc": "Luau.", "Time": "PM", "Dur": "3h", "Hours": "5pm"}
+    {"Cat": "Food", "Name": "[Waimea] Dinner: Toa Luau", "Zone": "Waimea", "GPS": "Toa Luau", "Adult": 135, "Child": 105, "Discount": 0.15, "Parking": 0, "Link": "https://www.toaluau.com", "Desc": "Luau.", "Time": "PM", "Dur": "3h", "Hours": "5pm"}
 ]
 df = pd.DataFrame(data_raw)
 
@@ -310,7 +304,6 @@ def get_current_selections_for_dupe_check():
 
 # LOGIC TO CHECK TIME CONFLICTS
 def check_time_warning(activity_name, slot_name):
-    # Find activity data
     try:
         act_row = df[df['Name'] == activity_name].iloc[0]
         best_time = act_row.get('Time', 'Any')
@@ -318,27 +311,17 @@ def check_time_warning(activity_name, slot_name):
     except:
         return None
 
-    # Define Slot Categories
     is_morning = any(x in slot_name for x in ["Morning", "Breakfast", "Start"])
     is_afternoon = any(x in slot_name for x in ["Afternoon", "Lunch"])
     is_night = any(x in slot_name for x in ["Night", "Dinner"])
     
-    # Check Conflicts
     warning = None
-    
-    # 1. Stargazing in Morning/Day
     if "Stargazing" in activity_name and not is_night:
         warning = f"⚠️ Better at Night (Stars visible)"
-    
-    # 2. Morning Only Activities (e.g., Diamond Head is hot, Hanauma fills up)
     elif best_time == "AM" and (is_afternoon or is_night):
         warning = f"⚠️ Best in Morning ({hours})"
-        
-    # 3. Night/Dinner Activities (Luaus) in Morning
     elif best_time == "PM" and (is_morning or is_afternoon):
         warning = f"⚠️ Evening Activity ({hours})"
-        
-    # 4. Day Only (Closed at Night)
     elif best_time == "Day" and is_night:
         warning = f"⚠️ Closed at Night ({hours})"
         
@@ -408,12 +391,9 @@ for day_name, slots in days:
 
         # WARNINGS: DUPLICATES & TIME
         warnings = []
-        
-        # Dupe Check
         if not any(x in selected for x in ["Hotel:", "Travel:", "Start:", "End:", "Included"]) and dupe_counts[selected] > 1:
             warnings.append(f"⚠️ Duplicate! Selected {dupe_counts[selected]} times.")
             
-        # Time Check
         time_warn = check_time_warning(selected, slot_name)
         if time_warn:
             warnings.append(time_warn)
