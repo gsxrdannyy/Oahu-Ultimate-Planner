@@ -41,6 +41,7 @@ def wipe_itinerary_db():
 # --- 2. SETUP DATA ---
 zones = ['Waikiki', 'Airport', 'West', 'Haleiwa', 'Waimea', 'Kahuku', 'Kualoa', 'Kaneohe', 'Kailua', 'Waimanalo', 'HawaiiKai']
 
+# Time Matrix
 time_data = [
     [15, 20, 45, 50, 60, 70, 50, 30, 35, 40, 25], 
     [20, 0,  25, 40, 50, 60, 40, 25, 30, 40, 35], 
@@ -56,7 +57,7 @@ time_data = [
 ]
 time_df = pd.DataFrame(time_data, index=zones, columns=zones)
 
-# Distances
+# Distance Matrix (Miles)
 dist_data = [
     [2,  9,  25, 30, 35, 40, 22, 12, 15, 18, 10], 
     [9,  0,  18, 25, 30, 38, 20, 12, 18, 22, 18], 
@@ -73,7 +74,7 @@ dist_data = [
 dist_df = pd.DataFrame(dist_data, index=zones, columns=zones)
 
 # --- SLOT DEFINITIONS (TIME BLOCKS) ---
-# Format: "Label": MilitaryHour (int)
+# Format: "Label": MilitaryHour (int) for logic
 SLOT_TIMES = {
     "Start": 8,       # 8:00 AM
     "Breakfast": 9,   # 9:00 AM
@@ -86,8 +87,8 @@ SLOT_TIMES = {
     "End": 22         # 10:00 PM
 }
 
-# --- MASTER DATABASE (With LastEntry Logic) ---
-# LastEntry: Hour (int) after which you cannot start. 99 = Always open.
+# --- MASTER DATABASE ---
+# LastEntry: Hour (int). 99 = Always open.
 data_raw = [
     # --- TRAVEL ---
     {"Cat": "Act", "Name": "[Airport] Travel: Flight to Oahu (ELP->HNL)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.google.com/travel/flights", "Desc": "11 hrs from El Paso.", "Time": "Any", "Dur": "11h", "Hours": "24/7", "LastEntry": 99},
@@ -95,13 +96,13 @@ data_raw = [
     {"Cat": "Act", "Name": "[Airport] Travel: Rental Car Pickup", "Zone": "Airport", "GPS": "Enterprise Rent-A-Car", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.enterprise.com", "Desc": "Pick up vehicle.", "Time": "Any", "Dur": "1h", "Hours": "24/7", "LastEntry": 99},
     
     # --- ATTRACTIONS ---
-    {"Cat": "Act", "Name": "[Waimanalo] Attraction: Sea Life Park", "Zone": "Waimanalo", "GPS": "Sea Life Park Hawaii", "Adult": 60, "Child": 50, "Discount": 0.58, "Parking": 9, "Link": "https://www.sealifeparkhawaii.com/", "Desc": "Marine park.", "Time": "Day", "Dur": "3-4h", "Hours": "10am-4pm", "LastEntry": 14}, # 2pm last entry recommended
+    {"Cat": "Act", "Name": "[Waimanalo] Attraction: Sea Life Park", "Zone": "Waimanalo", "GPS": "Sea Life Park Hawaii", "Adult": 60, "Child": 50, "Discount": 0.58, "Parking": 9, "Link": "https://www.sealifeparkhawaii.com/", "Desc": "Marine park.", "Time": "Day", "Dur": "3-4h", "Hours": "10am-4pm", "LastEntry": 14}, 
     {"Cat": "Act", "Name": "[Waikiki] Attraction: Waikiki Aquarium", "Zone": "Waikiki", "GPS": "Waikiki Aquarium", "Adult": 12, "Child": 5, "Discount": 0.33, "Parking": 5, "Link": "https://www.waikikiaquarium.org/", "Desc": "Reef exhibits.", "Time": "Day", "Dur": "1-2h", "Hours": "9am-4:30pm", "LastEntry": 16},
 
-    # --- KUALOA (Strict Times) ---
-    {"Cat": "Act", "Name": "[Kualoa] Best of Kualoa (Full Day)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 199, "Child": 149, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/packages/", "Desc": "Full Day Pkg.", "Time": "AM", "Dur": "6h", "Hours": "Starts 8:30am", "LastEntry": 9}, # Must start AM
+    # --- KUALOA ---
+    {"Cat": "Act", "Name": "[Kualoa] Best of Kualoa (Full Day)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 199, "Child": 149, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/packages/", "Desc": "Full Day Pkg.", "Time": "AM", "Dur": "6h", "Hours": "Starts 8:30am", "LastEntry": 9}, 
     {"Cat": "Act", "Name": "[Kualoa] ✅ Included in Full Day Pkg", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Activity continues...", "Time": "Any", "Dur": "-", "Hours": "-", "LastEntry": 99},
-    {"Cat": "Act", "Name": "[Kualoa] Jurassic Adv (Tour)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 150, "Child": 75, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/tours/", "Desc": "Premium Tour.", "Time": "Day", "Dur": "2.5h", "Hours": "8am-5pm", "LastEntry": 15}, # Last tour ~3pm
+    {"Cat": "Act", "Name": "[Kualoa] Jurassic Adv (Tour)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 150, "Child": 75, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/tours/", "Desc": "Premium Tour.", "Time": "Day", "Dur": "2.5h", "Hours": "8am-5pm", "LastEntry": 15}, 
     {"Cat": "Act", "Name": "[Kualoa] UTV Raptor (Tour)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 165, "Child": 75, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/tours/", "Desc": "Off-road.", "Time": "Day", "Dur": "2h", "Hours": "8am-5pm", "LastEntry": 15},
 
     # --- GROUPON ---
@@ -114,10 +115,10 @@ data_raw = [
     # --- ACTIVITIES ---
     {"Cat": "Act", "Name": "[Waikiki] Hotel: Hyatt Place (Return/Rest)", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.hyatt.com", "Desc": "Rest.", "Time": "Any", "Dur": "-", "Hours": "24/7", "LastEntry": 99},
     {"Cat": "Act", "Name": "[Waikiki] Start: Depart Hotel (Hyatt Place)", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Start.", "Time": "Any", "Dur": "-", "Hours": "-", "LastEntry": 99},
-    {"Cat": "Act", "Name": "[Waikiki] Relax: Waikiki Beach", "Zone": "Waikiki", "GPS": "Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "Flex", "Hours": "Any", "LastEntry": 17}, # Sunset
+    {"Cat": "Act", "Name": "[Waikiki] Relax: Waikiki Beach", "Zone": "Waikiki", "GPS": "Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "Flex", "Hours": "Any", "LastEntry": 17},
     {"Cat": "Act", "Name": "[Waikiki] Swim: Ala Moana Beach", "Zone": "Waikiki", "GPS": "Ala Moana Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "Flex", "Hours": "Any", "LastEntry": 17},
     {"Cat": "Act", "Name": "[Waikiki] Hike: Diamond Head", "Zone": "Waikiki", "GPS": "Diamond Head State Monument", "Adult": 10, "Child": 0, "Discount": 1.0, "Parking": 10, "Link": "https://gostateparks.hawaii.gov/diamondhead", "Desc": "Crater Hike.", "Time": "AM", "Dur": "1.5-2h", "Hours": "6am-4pm", "LastEntry": 16},
-    {"Cat": "Act", "Name": "[HawaiiKai] Snorkel: Hanauma Bay", "Zone": "HawaiiKai", "GPS": "Hanauma Bay", "Adult": 25, "Child": 0, "Discount": 1.0, "Parking": 3, "Link": "https://pros9.hnl.info/", "Desc": "Reef Snorkel.", "Time": "AM", "Dur": "3-4h", "Hours": "6:45am-4pm", "LastEntry": 13}, # Fills up
+    {"Cat": "Act", "Name": "[HawaiiKai] Snorkel: Hanauma Bay", "Zone": "HawaiiKai", "GPS": "Hanauma Bay", "Adult": 25, "Child": 0, "Discount": 1.0, "Parking": 3, "Link": "https://pros9.hnl.info/", "Desc": "Reef Snorkel.", "Time": "AM", "Dur": "3-4h", "Hours": "6:45am-4pm", "LastEntry": 13},
     {"Cat": "Act", "Name": "[Waimea] Adventure: Waimea Bay", "Zone": "Waimea", "GPS": "Waimea Bay Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Jumping rock.", "Time": "Day", "Dur": "2h", "Hours": "Daylight", "LastEntry": 17},
     {"Cat": "Act", "Name": "[Kailua] Beach: Lanikai Beach", "Zone": "Kailua", "GPS": "Lanikai Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "White sand.", "Time": "Day", "Dur": "2h", "Hours": "Daylight", "LastEntry": 17},
     {"Cat": "Act", "Name": "[Haleiwa] Explore: Dole Plantation", "Zone": "Haleiwa", "GPS": "Dole Plantation", "Adult": 9, "Child": 7, "Discount": 0.15, "Parking": 0, "Link": "https://doleplantation.com", "Desc": "Maze/Train.", "Time": "Day", "Dur": "1.5h", "Hours": "9:30am-5:30pm", "LastEntry": 16},
@@ -275,35 +276,11 @@ st.title("🌺 Oahu Ultimate Planner")
 st.caption("Live GPS • Smart Geographically Grouped • Veteran Savings 🪖")
 
 days = [
-    # MONDAY: ARRIVAL (5 Slots)
-    ("Mon 20 (Arrival)", [
-        "Morning", "Transport", 
-        "Afternoon", "Dinner", "End"
-    ]),
-    
-    # TUESDAY: WINDWARD SIDE (8 Slots)
-    ("Tue 21 (Windward Side)", [
-        "Start", "Breakfast", "Morning", "Lunch", 
-        "Afternoon", "Late Aft", "Dinner", "End"
-    ]),
-    
-    # WEDNESDAY: NORTH SHORE (8 Slots)
-    ("Wed 22 (North Shore)", [
-        "Start", "Breakfast", "Morning", "Lunch", 
-        "Afternoon", "Late Aft", "Dinner", "End"
-    ]),
-    
-    # THURSDAY: WEST SIDE / DOLPHINS (8 Slots)
-    ("Thu 23 (West/Dolphins)", [
-        "Start", "Breakfast", "Morning", "Lunch", 
-        "Afternoon", "Late Aft", "Dinner", "End"
-    ]),
-    
-    # FRIDAY: DEPARTURE (5 Slots)
-    ("Fri 24 (Departure)", [
-        "Start", "Breakfast", "Morning", 
-        "Lunch", "Afternoon"
-    ])
+    ("Mon 20 (Arrival)", ["Morning", "Transport", "Afternoon", "Dinner", "End"]),
+    ("Tue 21 (Windward Side)", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon", "Late Aft", "Dinner", "End"]),
+    ("Wed 22 (North Shore)", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon", "Late Aft", "Dinner", "End"]),
+    ("Thu 23 (West/Dolphins)", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon", "Late Aft", "Dinner", "End"]),
+    ("Fri 24 (Departure)", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon"])
 ]
 
 # --- SMART GEOGRAPHIC DEFAULTS (Matched to 34 Slots) ---
@@ -319,6 +296,17 @@ factory_defaults = [
     # FRI
     "[Waikiki] Start: Depart Hotel (Hyatt Place)", "[Waikiki] Breakfast: Duke's Waikiki", "[Waikiki] Relax: Waikiki Beach", "[Waikiki] Dinner: Rainbow Drive-In", "[Airport] Travel: Flight Home (HNL->ELP)"
 ]
+
+# --- HELPER: 12-Hour Time Formatter ---
+def format_12hr(military_hour):
+    if military_hour == 0:
+        return "12:00 AM"
+    elif military_hour < 12:
+        return f"{military_hour}:00 AM"
+    elif military_hour == 12:
+        return "12:00 PM"
+    else:
+        return f"{military_hour - 12}:00 PM"
 
 # --- HELPER TO CHECK DUPLICATES & TIME ---
 def get_current_selections_for_dupe_check():
@@ -344,22 +332,41 @@ def get_current_selections_for_dupe_check():
 def check_time_warning(activity_name, slot_name):
     try:
         act_row = df[df['Name'] == activity_name].iloc[0]
+        best_time = act_row.get('Time', 'Any')
+        hours = act_row.get('Hours', '-')
         last_entry = act_row.get('LastEntry', 99)
         slot_hour = SLOT_TIMES.get(slot_name, 12) # Default to noon if unknown
     except:
         return None
 
+    is_morning = any(x in slot_name for x in ["Morning", "Breakfast", "Start"])
+    is_afternoon = any(x in slot_name for x in ["Afternoon", "Lunch"])
+    is_night = any(x in slot_name for x in ["Night", "Dinner"])
+    
     warning = None
     
     # Check 1: Late Entry
     if slot_hour >= last_entry:
-        return f"⚠️ Too Late! Last entry is {last_entry}:00."
+        pretty_last = format_12hr(last_entry)
+        return f"⚠️ Too Late! Last entry is {pretty_last}."
     
     # Check 2: Stargazing
     if "Stargazing" in activity_name and slot_hour < 19:
         return "⚠️ Better at Night (Stars visible)"
+    
+    # Check 3: Morning Only Activities
+    elif best_time == "AM" and (is_afternoon or is_night):
+        return f"⚠️ Best in Morning ({hours})"
         
-    return None
+    # Check 4: Night/Dinner Activities in Morning
+    elif best_time == "PM" and (is_morning or is_afternoon):
+        return f"⚠️ Evening Activity ({hours})"
+        
+    # Check 5: Day Only (Closed at Night)
+    elif best_time == "Day" and is_night:
+        return f"⚠️ Closed at Night ({hours})"
+        
+    return warning
 
 all_active_acts = get_current_selections_for_dupe_check()
 dupe_counts = Counter(all_active_acts)
@@ -386,10 +393,10 @@ for day_name, slots in days:
         except ValueError:
             default_idx = 0
             
-        # UI: Selectbox with Time Label
+        # UI: Selectbox with 12hr Time Label
         slot_label = f"{slot_name}"
         if slot_name in SLOT_TIMES:
-            time_display = f"{SLOT_TIMES[slot_name]}:00"
+            time_display = format_12hr(SLOT_TIMES[slot_name])
             slot_label = f"{slot_name} ({time_display})"
             
         c1, c2, c3 = st.columns([2.8, 0.6, 0.6])
