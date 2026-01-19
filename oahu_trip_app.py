@@ -53,7 +53,7 @@ time_data = [
     [30, 25, 45, 55, 60, 45, 25, 0,  20, 30, 40], 
     [35, 30, 50, 60, 70, 55, 35, 20, 0,  15, 30], 
     [40, 40, 60, 75, 80, 65, 45, 30, 15, 0,  15], 
-    [25, 35, 55, 80, 90, 80, 60, 40, 30, 15, 0]   
+    [25, 35, 55, 80, 90, 80, 60, 40, 30, 15, 0]    
 ]
 time_df = pd.DataFrame(time_data, index=zones, columns=zones)
 
@@ -69,17 +69,16 @@ dist_data = [
     [12, 12, 28, 30, 35, 25, 10, 0,  8,  15, 20], 
     [15, 18, 32, 35, 40, 30, 18, 8,  0,  6,  15], 
     [18, 22, 38, 42, 48, 38, 25, 15, 6,  0,  8],  
-    [10, 18, 35, 50, 55, 50, 35, 20, 15, 8,  0]   
+    [10, 18, 35, 50, 55, 50, 35, 20, 15, 8,  0]    
 ]
 dist_df = pd.DataFrame(dist_data, index=zones, columns=zones)
 
 # --- SLOT DEFINITIONS (NEW TIMINGS) ---
-# Integers used for logic checks
 SLOT_TIMES = {
     "Start": 6,       # 6:00 AM (Depart)
-    "Breakfast": 6,   # 6:30 AM
-    "Morning": 8,     # 8:00 AM (First Event)
-    "Lunch": 11,      # 11:00 AM
+    "Breakfast": 7,   # 7:00 AM
+    "Morning": 9,     # 9:00 AM (First Event)
+    "Lunch": 12,      # 12:00 PM
     "Afternoon": 14,  # 2:00 PM
     "Late Aft": 17,   # 5:00 PM
     "Dinner": 19,     # 7:00 PM
@@ -87,27 +86,17 @@ SLOT_TIMES = {
     "End": 22         # 10:00 PM
 }
 
-# Display labels for dropdowns (Pretty 12hr format)
-SLOT_LABELS = {
-    "Start": "6:00 AM",
-    "Breakfast": "6:30 AM",
-    "Morning": "8:00 AM",
-    "Lunch": "11:00 AM",
-    "Afternoon": "2:00 PM",
-    "Late Aft": "5:00 PM",
-    "Dinner": "7:00 PM",
-    "Night": "9:00 PM",
-    "End": "10:00 PM"
-}
-
-# --- MASTER DATABASE ---
-# LastEntry: Hour (int). 99 = Always open.
+# --- MASTER DATABASE (UPDATED) ---
 data_raw = [
     # --- TRAVEL ---
-    {"Cat": "Act", "Name": "[Airport] Travel: Flight to Oahu (ELP->HNL)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.google.com/travel/flights", "Desc": "11 hrs from El Paso.", "Time": "Any", "Dur": "11h", "Hours": "24/7", "LastEntry": 99},
-    {"Cat": "Act", "Name": "[Airport] Travel: Flight Home (HNL->ELP)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.google.com/travel/flights", "Desc": "10 hrs to El Paso.", "Time": "Any", "Dur": "10h", "Hours": "24/7", "LastEntry": 99},
-    {"Cat": "Act", "Name": "[Airport] Travel: Rental Car Pickup", "Zone": "Airport", "GPS": "Enterprise Rent-A-Car", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.enterprise.com", "Desc": "Pick up vehicle.", "Time": "Any", "Dur": "1h", "Hours": "24/7", "LastEntry": 99},
+    {"Cat": "Act", "Name": "[Airport] Travel: Flight to Oahu (AA - Lands 12:27 PM)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.google.com/travel/flights", "Desc": "Lands 12:27 PM.", "Time": "Any", "Dur": "12h", "Hours": "24/7", "LastEntry": 99},
+    {"Cat": "Act", "Name": "[Airport] Travel: Flight Home (AA - Departs 10:15 PM)", "Zone": "Airport", "GPS": "Daniel K Inouye International Airport", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.google.com/travel/flights", "Desc": "Depart 10:15 PM.", "Time": "Any", "Dur": "10h", "Hours": "24/7", "LastEntry": 99},
+    {"Cat": "Act", "Name": "[Airport] Travel: Rental Car Pickup (Payless)", "Zone": "Airport", "GPS": "Payless Car Rental", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.paylesscar.com", "Desc": "Pick up vehicle.", "Time": "Any", "Dur": "1h", "Hours": "24/7", "LastEntry": 99},
     
+    # --- HOTELS ---
+    {"Cat": "Act", "Name": "[Waikiki] Hotel: Ohia Waikiki (Return/Rest)", "Zone": "Waikiki", "GPS": "Ohia Waikiki Studio Suites", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.ohiawaikiki.com/", "Desc": "Rest/Pool.", "Time": "Any", "Dur": "-", "Hours": "24/7", "LastEntry": 99},
+    {"Cat": "Act", "Name": "[Waikiki] Start: Depart Hotel (Ohia Waikiki)", "Zone": "Waikiki", "GPS": "Ohia Waikiki Studio Suites", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Start.", "Time": "Any", "Dur": "-", "Hours": "-", "LastEntry": 99},
+
     # --- ATTRACTIONS ---
     {"Cat": "Act", "Name": "[Waimanalo] Attraction: Sea Life Park", "Zone": "Waimanalo", "GPS": "Sea Life Park Hawaii", "Adult": 60, "Child": 50, "Discount": 0.58, "Parking": 9, "Link": "https://www.sealifeparkhawaii.com/", "Desc": "Marine park.", "Time": "Day", "Dur": "3h", "Hours": "10am-4pm", "LastEntry": 14}, 
     {"Cat": "Act", "Name": "[Waikiki] Attraction: Waikiki Aquarium", "Zone": "Waikiki", "GPS": "Waikiki Aquarium", "Adult": 12, "Child": 5, "Discount": 0.33, "Parking": 5, "Link": "https://www.waikikiaquarium.org/", "Desc": "Reef exhibits.", "Time": "Day", "Dur": "1.5h", "Hours": "9am-4:30pm", "LastEntry": 16},
@@ -118,7 +107,8 @@ data_raw = [
     {"Cat": "Act", "Name": "[Kualoa] Jurassic Adv (Tour)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 150, "Child": 75, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/tours/", "Desc": "Premium Tour.", "Time": "Day", "Dur": "2.5h", "Hours": "8am-5pm", "LastEntry": 15}, 
     {"Cat": "Act", "Name": "[Kualoa] UTV Raptor (Tour)", "Zone": "Kualoa", "GPS": "Kualoa Ranch", "Adult": 165, "Child": 75, "Discount": 0.15, "Parking": 0, "Link": "https://www.kualoa.com/tours/", "Desc": "Off-road.", "Time": "Day", "Dur": "2h", "Hours": "8am-5pm", "LastEntry": 15},
 
-    # --- GROUPON ---
+    # --- GROUPON (UPDATED WITH FIREWORKS) ---
+    {"Cat": "Act", "Name": "[Waikiki] Cruise: Fireworks & Music (Groupon)", "Zone": "Waikiki", "GPS": "1025 Ala Moana Blvd", "Adult": 64, "Child": 48, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/gl-e-sea-diver-fireworks-cruise", "Desc": "BYOB Sunset.", "Time": "PM", "Dur": "2h", "Hours": "Fri 6:30pm", "LastEntry": 19},
     {"Cat": "Act", "Name": "[Waikiki] Snorkel: Turtle Canyon (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 50, "Child": 40, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/gl-waikiki-turtle-snorkeling-2", "Desc": "Turtle snorkel.", "Time": "Day", "Dur": "2.5h", "Hours": "8am-3pm", "LastEntry": 14},
     {"Cat": "Act", "Name": "[Waikiki] Adventure: E-Sea Scooters (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 80, "Child": 80, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/e-sea-diver-31", "Desc": "Scooters.", "Time": "Day", "Dur": "2h", "Hours": "9am-2pm", "LastEntry": 13},
     {"Cat": "Act", "Name": "[Waikiki] Boat: Glass Bottom Tour (Groupon)", "Zone": "Waikiki", "GPS": "Kewalo Basin Harbor", "Adult": 35, "Child": 25, "Discount": 0, "Parking": 2, "Link": "https://www.groupon.com/deals/hawaii-glass-bottom-boats", "Desc": "Glass bottom.", "Time": "Day", "Dur": "1h", "Hours": "9am-4pm", "LastEntry": 15},
@@ -126,8 +116,6 @@ data_raw = [
     {"Cat": "Act", "Name": "[West] Tour: Iruka Dolphin Snorkel (Groupon)", "Zone": "West", "GPS": "Waianae Small Boat Harbor", "Adult": 120, "Child": 90, "Discount": 0, "Parking": 0, "Link": "https://www.groupon.com/deals/iruka-hawaii-dolphin", "Desc": "Dolphin watch.", "Time": "AM", "Dur": "3h", "Hours": "Early", "LastEntry": 10},
 
     # --- ACTIVITIES ---
-    {"Cat": "Act", "Name": "[Waikiki] Hotel: Hyatt Place (Return/Rest)", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "https://www.hyatt.com", "Desc": "Rest.", "Time": "Any", "Dur": "-", "Hours": "24/7", "LastEntry": 99},
-    {"Cat": "Act", "Name": "[Waikiki] Start: Depart Hotel (Hyatt Place)", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Start.", "Time": "Any", "Dur": "-", "Hours": "-", "LastEntry": 99},
     {"Cat": "Act", "Name": "[Waikiki] Relax: Waikiki Beach", "Zone": "Waikiki", "GPS": "Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "Flex", "Hours": "Any", "LastEntry": 17},
     {"Cat": "Act", "Name": "[Waikiki] Swim: Ala Moana Beach", "Zone": "Waikiki", "GPS": "Ala Moana Beach Park", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Beach.", "Time": "Day", "Dur": "Flex", "Hours": "Any", "LastEntry": 17},
     {"Cat": "Act", "Name": "[Waikiki] Hike: Diamond Head", "Zone": "Waikiki", "GPS": "Diamond Head State Monument", "Adult": 10, "Child": 0, "Discount": 1.0, "Parking": 10, "Link": "https://gostateparks.hawaii.gov/diamondhead", "Desc": "Crater Hike.", "Time": "AM", "Dur": "1.5-2h", "Hours": "6am-4pm", "LastEntry": 16},
@@ -157,7 +145,6 @@ data_raw = [
     {"Cat": "Act", "Name": "(Select Activity)", "Zone": "Waikiki", "GPS": "Waikiki", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "-", "Time": "Any", "Dur": "-", "Hours": "-", "LastEntry": 99},
     
     # --- FOOD ---
-    {"Cat": "Food", "Name": "[Waikiki] Breakfast: Hotel Buffet", "Zone": "Waikiki", "GPS": "Hyatt Place Waikiki Beach", "Adult": 0, "Child": 0, "Discount": 0, "Parking": 0, "Link": "", "Desc": "Buffet.", "Time": "AM", "Dur": "45m", "Hours": "6am-10am", "LastEntry": 10},
     {"Cat": "Food", "Name": "[Waikiki] Breakfast: Leonard's Bakery", "Zone": "Waikiki", "GPS": "Leonard's Bakery", "Adult": 10, "Child": 10, "Discount": 0, "Parking": 0, "Link": "https://www.leonardshawaii.com/", "Desc": "Bakery.", "Time": "AM", "Dur": "30m", "Hours": "5:30am-9pm", "LastEntry": 20},
     {"Cat": "Food", "Name": "[Waikiki] Breakfast: Duke's Waikiki", "Zone": "Waikiki", "GPS": "Duke's Waikiki", "Adult": 29, "Child": 16, "Discount": 0, "Parking": 6, "Link": "https://www.dukeswaikiki.com", "Desc": "Oceanfront.", "Time": "AM", "Dur": "1h", "Hours": "7am-11am", "LastEntry": 10},
     {"Cat": "Food", "Name": "[Waikiki] Breakfast: Eggs 'n Things", "Zone": "Waikiki", "GPS": "Eggs 'n Things Saratoga", "Adult": 25, "Child": 15, "Discount": 0.10, "Parking": 0, "Link": "https://eggsnthings.com", "Desc": "Pancakes.", "Time": "AM", "Dur": "1h", "Hours": "6am-2pm", "LastEntry": 13},
@@ -199,7 +186,7 @@ if "data_loaded" not in st.session_state:
 st.sidebar.header("⚙️ Trip Settings")
 adults = st.sidebar.number_input("Adults", 1, 10, 2)
 kids = st.sidebar.number_input("Kids", 0, 10, 3)
-base_cost = st.sidebar.number_input("Fixed Package Cost", value=6698, help="Flight + Hotel + Car")
+base_cost = st.sidebar.number_input("Fixed Package Cost", value=5917.53, help="Flight + Hotel + Car")
 
 st.sidebar.markdown("---")
 st.sidebar.header("⛽ Gas Settings")
@@ -220,8 +207,8 @@ st.sidebar.header("💾 Controls")
 
 if st.sidebar.button("💾 Save All Changes", type="primary"):
     current_itin_snapshot = []
-    # Save up to 50 slots
-    for i in range(50):
+    # Save up to 60 slots
+    for i in range(60):
         if i in st.session_state:
             current_itin_snapshot.append({"ID": i, "Activity": st.session_state[i]})
     save_all(saved_pkg, saved_fun, current_itin_snapshot)
@@ -235,18 +222,20 @@ with st.sidebar.expander("🔄 Swap Days"):
         "Tue 21 (Windward Side)", 
         "Wed 22 (North Shore)", 
         "Thu 23 (West/Dolphins)", 
-        "Fri 24 (Departure)"
+        "Fri 24 (Waikiki Relax)",
+        "Sat 25 (Departs 10:15 PM)"
     ]
     day_a = st.selectbox("Swap Day A", swap_days_list, key="swap_a")
     day_b = st.selectbox("With Day B", swap_days_list, key="swap_b")
     
     if st.button("Swap Itinerary"):
         day_ranges = {
-            "Mon 20 (Arrival)": range(0, 5),
-            "Tue 21 (Windward Side)": range(5, 13),
-            "Wed 22 (North Shore)": range(13, 21),
-            "Thu 23 (West/Dolphins)": range(21, 29),
-            "Fri 24 (Departure)": range(29, 34)
+            "Mon 20 (Arrival)": range(0, 4),
+            "Tue 21 (Windward Side)": range(4, 12),
+            "Wed 22 (North Shore)": range(12, 20),
+            "Thu 23 (West/Dolphins)": range(20, 28),
+            "Fri 24 (Waikiki Relax)": range(28, 36),
+            "Sat 25 (Departs 10:15 PM)": range(36, 44)
         }
         
         range_a = day_ranges[day_a]
@@ -256,7 +245,7 @@ with st.sidebar.expander("🔄 Swap Days"):
             st.error("Cannot swap days with different slot counts.")
         else:
             current_itin = {}
-            for i in range(34):
+            for i in range(60):
                 if i in st.session_state:
                     current_itin[i] = st.session_state[i]
                 elif i in st.session_state.itin_db:
@@ -289,25 +278,28 @@ st.title("🌺 Oahu Ultimate Planner")
 st.caption("Live GPS • Smart Geographically Grouped • Veteran Savings 🪖")
 
 days = [
-    ("Mon 20 (Arrival)", ["Morning", "Transport", "Afternoon", "Dinner", "End"]),
+    ("Mon 20 (Arrival - Land 12:27 PM)", ["Airport", "Afternoon", "Dinner", "End"]),
     ("Tue 21 (Windward Side)", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon", "Late Aft", "Dinner", "End"]),
     ("Wed 22 (North Shore)", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon", "Late Aft", "Dinner", "End"]),
     ("Thu 23 (West/Dolphins)", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon", "Late Aft", "Dinner", "End"]),
-    ("Fri 24 (Departure)", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon"])
+    ("Fri 24 (Waikiki Relax)", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon", "Late Aft", "Dinner", "End"]),
+    ("Sat 25 (Departs 10:15 PM)", ["Start", "Breakfast", "Morning", "Lunch", "Afternoon", "Late Aft", "Dinner", "End"])
 ]
 
-# --- SMART GEOGRAPHIC DEFAULTS (Matched to 34 Slots) ---
+# --- SMART GEOGRAPHIC DEFAULTS (UPDATED) ---
 factory_defaults = [
-    # MON
-    "[Airport] Travel: Flight to Oahu (ELP->HNL)", "[Airport] Travel: Rental Car Pickup", "[Waikiki] Hotel: Hyatt Place (Return/Rest)", "[Waikiki] Dinner: Duke's Waikiki", "[Waikiki] Hotel: Hyatt Place (Return/Rest)",
-    # TUE
-    "[Waikiki] Start: Depart Hotel (Hyatt Place)", "[Waikiki] Breakfast: Hotel Buffet (Included)", "[Kaneohe] Culture: Byodo-In Temple", "[Kaneohe] Lunch: McDonald's", "[Kualoa] Jurassic Adv (Tour)", "[Kailua] Beach: Lanikai Beach", "[Waikiki] Dinner: Maui Brewing Co.", "[Waikiki] Hotel: Hyatt Place (Return/Rest)",
-    # WED
-    "[Waikiki] Start: Depart Hotel (Hyatt Place)", "[Haleiwa] Breakfast: Kono's", "[Waimea] Adventure: Waimea Bay", "[Kahuku] Lunch: Giovanni's Shrimp", "[Haleiwa] Explore: Dole Plantation", "[Waimea] Snorkel: Shark's Cove", "[Kahuku] Dinner: Seven Brothers", "[Waikiki] Hotel: Hyatt Place (Return/Rest)",
-    # THU
-    "[Waikiki] Start: Depart Hotel (Hyatt Place)", "[Waikiki] Breakfast: Leonard's Bakery", "[West] Tour: Dolphins & You (Groupon)", "[Kaneohe] Lunch: McDonald's", "[Waikiki] Swim: Ala Moana Beach", "[West] Dinner: Paradise Cove Luau", "[Haleiwa] Night: Stargazing", "[Waikiki] Hotel: Hyatt Place (Return/Rest)",
-    # FRI
-    "[Waikiki] Start: Depart Hotel (Hyatt Place)", "[Waikiki] Breakfast: Duke's Waikiki", "[Waikiki] Relax: Waikiki Beach", "[Waikiki] Dinner: Rainbow Drive-In", "[Airport] Travel: Flight Home (HNL->ELP)"
+    # MON 20
+    "[Airport] Travel: Rental Car Pickup (Payless)", "[Waikiki] Hotel: Ohia Waikiki (Return/Rest)", "[Waikiki] Dinner: Duke's Waikiki", "[Waikiki] Hotel: Ohia Waikiki (Return/Rest)",
+    # TUE 21
+    "[Waikiki] Start: Depart Hotel (Ohia Waikiki)", "[Waikiki] Breakfast: Leonard's Bakery", "[Kaneohe] Culture: Byodo-In Temple", "[Kaneohe] Lunch: McDonald's", "[Kualoa] Jurassic Adv (Tour)", "[Kailua] Beach: Lanikai Beach", "[Waikiki] Dinner: Maui Brewing Co.", "[Waikiki] Hotel: Ohia Waikiki (Return/Rest)",
+    # WED 22
+    "[Waikiki] Start: Depart Hotel (Ohia Waikiki)", "[Haleiwa] Breakfast: Kono's", "[Waimea] Adventure: Waimea Bay", "[Kahuku] Lunch: Giovanni's Shrimp", "[Haleiwa] Explore: Dole Plantation", "[Waimea] Snorkel: Shark's Cove", "[Kahuku] Dinner: Seven Brothers", "[Waikiki] Hotel: Ohia Waikiki (Return/Rest)",
+    # THU 23
+    "[Waikiki] Start: Depart Hotel (Ohia Waikiki)", "[Waikiki] Breakfast: Eggs 'n Things", "[West] Tour: Dolphins & You (Groupon)", "[Kaneohe] Lunch: McDonald's", "[Waikiki] Swim: Ala Moana Beach", "[West] Dinner: Paradise Cove Luau", "[Haleiwa] Night: Stargazing", "[Waikiki] Hotel: Ohia Waikiki (Return/Rest)",
+    # FRI 24 (UPDATED WITH CRUISE)
+    "[Waikiki] Start: Depart Hotel (Ohia Waikiki)", "[Waikiki] Breakfast: Duke's Waikiki", "[Waikiki] Relax: Waikiki Beach", "[Waikiki] Lunch: McDonald's", "[Waikiki] Attraction: Waikiki Aquarium", "[Waikiki] Breakfast: Musubi Cafe Iyasume", "[Waikiki] Cruise: Fireworks & Music (Groupon)", "[Waikiki] Hotel: Ohia Waikiki (Return/Rest)",
+    # SAT 25
+    "[Waikiki] Start: Depart Hotel (Ohia Waikiki)", "[Waikiki] Breakfast: Cinnamon's", "[Waikiki] Hike: Diamond Head", "[Waikiki] Lunch: Rainbow Drive-In", "[Waikiki] Zoo: Honolulu Zoo", "[Waikiki] Swim: Ala Moana Beach", "[Airport] Travel: Flight Home (AA - Departs 10:15 PM)", "[Airport] Travel: Flight Home (AA - Departs 10:15 PM)"
 ]
 
 # --- HELPER: 12-Hour Time Formatter ---
@@ -385,7 +377,7 @@ dupe_counts = Counter(all_active_acts)
 
 total_food_fun = 0
 total_miles = 0
-prev_zone = "Waikiki"
+prev_zone = "Airport"
 slot_counter = 0
 
 for day_name, slots in days:
