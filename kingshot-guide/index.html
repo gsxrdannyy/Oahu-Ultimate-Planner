@@ -1,0 +1,909 @@
+<title>Kingshot Command Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a war-room command app. Sticky header + scrollable tab rail, one view at a time, cards only where a thing is an object (heroes, events, steps). */
+:root{
+  --bg:#eef1f6; --surface:#ffffff; --surface-2:#e3e8f0; --line:#cfd6e2;
+  --fg:#152033; --muted:#55627a; --accent:#a8741a; --accent-ink:#ffffff; --accent-soft:#f6ead2;
+  --steel:#2f4a78; --steel-soft:#dde6f5;
+  --good:#1f7a4d; --good-soft:#dcf1e5; --warn:#a15c00; --warn-soft:#fbead2; --bad:#b3261e; --bad-soft:#f8dedb;
+  --inf:#2f4a78; --cav:#8a3b8f; --arc:#1f7a4d;
+  --f-display:"Marcellus", "Trajan Pro", Georgia, serif;
+  --f-body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1320; --surface:#151d2e; --surface-2:#1c2639; --line:#2a3650;
+  --fg:#e6ebf4; --muted:#9aa7bf; --accent:#e0ad4f; --accent-ink:#1a1405; --accent-soft:#33280f;
+  --steel:#8fb0e8; --steel-soft:#1d2a44;
+  --good:#5fd39a; --good-soft:#123324; --warn:#f0b260; --warn-soft:#3a2810; --bad:#ff8a80; --bad-soft:#3d1714;
+  --inf:#8fb0e8; --cav:#d99be0; --arc:#5fd39a; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0d1320; --surface:#151d2e; --surface-2:#1c2639; --line:#2a3650;
+  --fg:#e6ebf4; --muted:#9aa7bf; --accent:#e0ad4f; --accent-ink:#1a1405; --accent-soft:#33280f;
+  --steel:#8fb0e8; --steel-soft:#1d2a44;
+  --good:#5fd39a; --good-soft:#123324; --warn:#f0b260; --warn-soft:#3a2810; --bad:#ff8a80; --bad-soft:#3d1714;
+  --inf:#8fb0e8; --cav:#d99be0; --arc:#5fd39a; color-scheme:dark;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.01em}
+h2{font-size:1.6rem}
+h3{font-size:1.15rem}
+p{margin:0}
+a{color:var(--steel)}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:12px 8px}
+.brand-l{display:flex;align-items:center;gap:10px;min-width:0}
+.crest{width:34px;height:34px;flex:none}
+.brand h1{font-size:1.25rem;line-height:1.1}
+.brand small{display:block;color:var(--muted);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:5px 11px;font-size:.8rem;white-space:nowrap;cursor:pointer}
+.chip b{font-family:var(--f-mono);font-weight:500}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{flex:none;border:0;background:transparent;padding:8px 13px;border-radius:999px;color:var(--muted);font-weight:600;font-size:.9rem;cursor:pointer}
+nav.tabs button[aria-selected="true"]{background:var(--fg);color:var(--bg)}
+
+main{padding-block:20px 60px}
+section.view{display:grid;gap:18px}
+.lede{color:var(--muted);max-width:65ch}
+.eyebrow{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.head{display:grid;gap:6px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
+.grid2{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.grid3{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+
+.note{border-left:3px solid var(--steel);background:var(--steel-soft);padding:10px 14px;border-radius:0 8px 8px 0;font-size:.9rem}
+.note.warn{border-color:var(--warn);background:var(--warn-soft)}
+.note.good{border-color:var(--good);background:var(--good-soft)}
+
+/* profile form */
+.form{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))}
+.field{display:grid;gap:4px}
+.field label{font-size:.78rem;font-weight:600;color:var(--muted);letter-spacing:.02em}
+.field select,.field input{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%}
+
+/* steps */
+ol.steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+ol.steps li::before{content:counter(s);font-family:var(--f-mono);width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-size:.9rem}
+ol.steps li.top::before{background:var(--accent);color:var(--accent-ink)}
+.step-t{font-weight:700}
+.step-d{color:var(--muted);font-size:.9rem;margin-top:2px}
+.tag{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:5px;margin-left:6px;vertical-align:2px}
+.tag.now{background:var(--bad-soft);color:var(--bad)}
+.tag.soon{background:var(--warn-soft);color:var(--warn)}
+.tag.ongoing{background:var(--good-soft);color:var(--good)}
+
+/* checklist */
+.check{display:grid;gap:2px}
+.check label{display:flex;gap:10px;align-items:flex-start;padding:8px 6px;border-radius:8px;cursor:pointer}
+.check label:hover{background:var(--surface-2)}
+.check input{width:18px;height:18px;margin-top:2px;accent-color:var(--accent);flex:none}
+.check input:checked + span{color:var(--muted);text-decoration:line-through}
+.progress{height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* heroes */
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:.82rem;font-weight:600;cursor:pointer;color:var(--muted)}
+.pill[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.heroes{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr))}
+.hero{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.tier{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;font-family:var(--f-display);font-size:1.25rem;background:var(--surface-2)}
+.tier.S{background:var(--accent);color:var(--accent-ink)}
+.tier.A{background:var(--accent-soft);color:var(--accent)}
+.hero h4{margin:0;font-size:1rem}
+.meta{font-size:.78rem;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;margin-top:1px}
+.troop{font-weight:700}
+.troop.Infantry{color:var(--inf)} .troop.Cavalry{color:var(--cav)} .troop.Archer{color:var(--arc)}
+.hero p{font-size:.86rem;margin-top:6px}
+.hero.locked{opacity:.5}
+
+/* tables */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
+tr:last-child td{border-bottom:0}
+td.num{font-family:var(--f-mono);white-space:nowrap;font-variant-numeric:tabular-nums}
+
+/* formation bar */
+.form-bar{display:flex;height:26px;border-radius:7px;overflow:hidden;font-family:var(--f-mono);font-size:.72rem;margin-top:8px}
+.form-bar span{display:grid;place-items:center;color:#fff;min-width:0;overflow:hidden;white-space:nowrap}
+.fb-i{background:#3a5a94}.fb-c{background:#8a3b8f}.fb-a{background:#22834f}
+.legend{display:flex;gap:12px;font-size:.75rem;color:var(--muted);margin-top:6px;flex-wrap:wrap}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:0}
+
+/* events accordion */
+details.ev{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+details.ev summary{list-style:none;cursor:pointer;padding:14px 16px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center}
+details.ev summary::-webkit-details-marker{display:none}
+details.ev summary h3{font-size:1.1rem}
+details.ev summary .when{grid-column:1;font-size:.8rem;color:var(--muted)}
+details.ev summary .chev{grid-row:1/3;grid-column:2;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);transition:transform .2s}
+details.ev[open] summary .chev{transform:rotate(180deg)}
+.ev-body{padding:0 16px 16px;display:grid;gap:14px}
+.ev-body h5{margin:0 0 4px;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.ev-body ul{margin:0;padding-left:20px;display:grid;gap:4px}
+.ev-body li{font-size:.9rem}
+.kind{font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:5px;background:var(--steel-soft);color:var(--steel);margin-left:8px;vertical-align:3px;font-family:var(--f-body)}
+
+ul.clean{margin:0;padding-left:20px;display:grid;gap:6px}
+.big{font-family:var(--f-display);font-size:2rem;line-height:1;color:var(--accent)}
+.kicker{font-size:.8rem;color:var(--muted)}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+textarea{width:100%;min-height:150px;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px;font-family:var(--f-mono);font-size:.78rem;color:var(--fg)}
+footer{color:var(--muted);font-size:.8rem;padding-block:10px 30px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <div class="brand-l">
+        <svg class="crest" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 30 7v9c0 8-5.6 13.4-13 16C9.6 29.4 4 24 4 16V7z" fill="var(--accent)"/><path d="M10 20l2.5-8 4.5 4 4.5-4L24 20z" fill="var(--surface)"/><rect x="10" y="21.5" width="14" height="2.4" rx="1" fill="var(--surface)"/></svg>
+        <div><h1>Kingshot Command</h1><small>Your tuned playbook</small></div>
+      </div>
+      <button class="chip" id="profileChip" type="button" title="Edit your account profile">TC <b id="chipTc">23</b> · Gen <b id="chipGen">6</b></button>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Guide sections">
+      <button role="tab" data-v="plan">My Plan</button>
+      <button role="tab" data-v="heroes">Heroes</button>
+      <button role="tab" data-v="build">Town Center</button>
+      <button role="tab" data-v="research">Research</button>
+      <button role="tab" data-v="gear">Gear &amp; Pets</button>
+      <button role="tab" data-v="power">Power</button>
+      <button role="tab" data-v="events">Events</button>
+      <button role="tab" data-v="spend">Gems</button>
+      <button role="tab" data-v="data">My Data</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ================= PLAN ================= -->
+<section class="view" id="v-plan">
+  <div class="head">
+    <span class="eyebrow">Your account</span>
+    <h2>What to do next</h2>
+    <p class="lede">Set your account details once. The priority list, hero lineups and tips across the app adjust to match. Your answers stay on this device.</p>
+  </div>
+
+  <div class="card">
+    <div class="form" id="profileForm">
+      <div class="field"><label for="pTc">Town Center level</label>
+        <select id="pTc"></select></div>
+      <div class="field"><label for="pDay">Server age (days)</label>
+        <input id="pDay" type="number" min="1" max="1500" inputmode="numeric" placeholder="e.g. 210"></div>
+      <div class="field"><label for="pGen">Newest hero generation on your server</label>
+        <select id="pGen"></select></div>
+      <div class="field"><label for="pRole">Your role in rallies</label>
+        <select id="pRole">
+          <option value="joiner">Mostly join rallies</option>
+          <option value="hybrid">Mix of both</option>
+          <option value="lead">I lead rallies</option>
+        </select></div>
+      <div class="field"><label for="pSpend">Spending</label>
+        <select id="pSpend">
+          <option value="f2p">Free to play</option>
+          <option value="low">Low spender (passes / monthly cards)</option>
+          <option value="mid">Mid to high spender</option>
+        </select></div>
+      <div class="field"><label for="pQueue">Second builder</label>
+        <select id="pQueue">
+          <option value="no">No, one builder</option>
+          <option value="yes">Yes, permanent</option>
+        </select></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="display:grid;gap:6px">
+      <span class="eyebrow">Stage</span>
+      <div class="big" id="stageName">Mid game</div>
+      <p class="kicker" id="stageNote"></p>
+    </div>
+    <div class="card" style="display:grid;gap:6px">
+      <span class="eyebrow">Main goal right now</span>
+      <div class="big" id="goalName" style="font-size:1.5rem">Reach TC 25</div>
+      <p class="kicker" id="goalNote"></p>
+    </div>
+  </div>
+
+  <div class="head"><h3>Your priority list</h3><p class="lede">Work top to bottom. Gold number = do it this week.</p></div>
+  <ol class="steps" id="priorityList"></ol>
+
+  <div class="card" style="display:grid;gap:12px">
+    <div class="row"><h3>Daily checklist</h3><span class="kicker" id="checkCount">0 / 0</span></div>
+    <div class="progress"><i id="checkBar"></i></div>
+    <div class="check" id="dailyList"></div>
+    <div class="row"><span class="kicker">Ticks clear automatically each new day.</span><button class="btn ghost" id="resetChecks" type="button">Clear ticks</button></div>
+  </div>
+
+  <div class="note warn"><b>Golden rule of Kingshot:</b> almost every big event pays for the same actions (building, research, training, hero growth). Don't spend speedups, Truegold, Mithril, hero shards or roulette gems on a random day. Hold them for the day that scores them, then spend everything at once.</div>
+</section>
+
+<!-- ================= HEROES ================= -->
+<section class="view" id="v-heroes" hidden>
+  <div class="head">
+    <span class="eyebrow">Heroes</span>
+    <h2>Who to build, and in what order</h2>
+    <p class="lede">Heroes from generations your server hasn't reached are faded. Tiers reflect the late-game meta (October 2026 community consensus). Guides disagree on some mid-tier names, so check a hero's skills in-game before you invest heavily.</p>
+  </div>
+
+  <div class="card" style="display:grid;gap:12px">
+    <h3>Your best lineups right now</h3>
+    <div class="grid3" id="lineups"></div>
+  </div>
+
+  <div class="card" style="display:grid;gap:10px">
+    <h3>Leveling order for your heroes</h3>
+    <ol class="clean" id="heroOrder"></ol>
+  </div>
+
+  <div class="row">
+    <div class="filters" id="troopFilter">
+      <button class="pill" aria-pressed="true" data-f="all">All</button>
+      <button class="pill" aria-pressed="false" data-f="Infantry">Infantry</button>
+      <button class="pill" aria-pressed="false" data-f="Cavalry">Cavalry</button>
+      <button class="pill" aria-pressed="false" data-f="Archer">Archer</button>
+      <button class="pill" aria-pressed="false" data-f="joiner">Bear joiners</button>
+    </div>
+  </div>
+  <div class="heroes" id="heroGrid"></div>
+
+  <div class="card" style="display:grid;gap:10px">
+    <h3>How hero investment actually works</h3>
+    <ul class="clean">
+      <li><b>Pick three to five heroes and stay loyal.</b> Spreading shards and gear across ten heroes is the most common reason accounts feel weak.</li>
+      <li><b>Rally leader gets everything.</b> The host's three heroes use all their skills and stats. Joiners only add the <i>first skill of their first (lead) hero</i>, so a joiner's lineup is one hero deep.</li>
+      <li><b>Widgets (exclusive gear) only fire when you lead a rally or garrison a rallyable building.</b> Solo hits and joining don't use them. Only buy widgets for heroes you will lead with.</li>
+      <li><b>Hero levels raise troop capacity</b>, so keep your three main heroes level-capped before pushing stars on side heroes.</li>
+      <li><b>New generation every few months.</b> Your newest-gen archer is usually your biggest damage upgrade. Older-gen heroes still work as joiners and garrison fillers.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= BUILD ================= -->
+<section class="view" id="v-build" hidden>
+  <div class="head">
+    <span class="eyebrow">Town Center</span>
+    <h2>The road from TC 23 to Truegold</h2>
+    <p class="lede">TC 23 is upper mid game. The true end game starts at TC 30, when Truegold levels (TG1 and up) open. Everything here is about getting there with no idle builders.</p>
+  </div>
+
+  <ol class="steps">
+    <li class="top"><div><div class="step-t">TC 23 → 25: unlock Governor Charms</div><div class="step-d">Charms add Health and Lethality to every troop and are a permanent power source. TC 25 is the first big milestone above you.</div></div></li>
+    <li class="top"><div><div class="step-t">Upgrade only what the next TC level asks for</div><div class="step-d">Tap the Town Center's upgrade button and read the requirements. Build those buildings first. Skip side buildings until TC 30 unless they're cheap or required.</div></div></li>
+    <li><div><div class="step-t">TC 25 → 28: Academy and Embassy stay level with TC</div><div class="step-d">The Academy level caps your research. The Embassy speeds every timer through alliance help. Both are also required for the first Truegold level.</div></div></li>
+    <li><div><div class="step-t">TC 28 → 30: the expensive stretch</div><div class="step-d">These levels cost a lot of resources and time. Gather constantly, keep both builders busy, and time the TC 29 and TC 30 upgrades for a construction scoring day so the same speedups also earn event rewards.</div></div></li>
+    <li><div><div class="step-t">TC 30 → TG1 and up (Age of Truegold, about server day 70+)</div><div class="step-d">Needs Embassy 30 and Academy 30 first. Truegold costs climb each level (roughly 132, 158, 238, 280, 335 Truegold for TC TG1 to TG5, per community calculators).</div></div></li>
+    <li><div><div class="step-t">TG5 and the War Academy (about server day 220+)</div><div class="step-d">War Academy unlocks T11 troops through Truegold Dust research. It is very costly. Many F2P players push T10 troops to TG8 instead, which community testing says beats T11 at TG5 in most fights.</div></div></li>
+  </ol>
+
+  <div class="card" style="display:grid;gap:10px">
+    <h3>Unlocks around your level</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Level</th><th>What opens</th><th>Why it matters</th></tr></thead>
+      <tbody>
+        <tr><td class="num">TC 22</td><td>Governor Gear</td><td>Attack and Defense for every troop type</td></tr>
+        <tr><td class="num">TC 25</td><td>Governor Charms</td><td>Health and Lethality for every troop type</td></tr>
+        <tr><td class="num">TC 30</td><td>Truegold levels, gear imbuement</td><td>Start of the real end game</td></tr>
+        <tr><td class="num">TC 30 + day ~220</td><td>War Academy</td><td>T11 troop research</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="card" style="display:grid;gap:8px">
+    <h3>Building faster without spending</h3>
+    <ul class="clean">
+      <li><b>Ask for alliance help on every upgrade</b> before you touch a speedup. A max-level Embassy means more helps per timer.</li>
+      <li><b>Start long builds before you sleep</b>, short ones while you're active.</li>
+      <li><b>Never let a builder sit idle.</b> If the TC is waiting on resources, use the second builder on a requirement building.</li>
+      <li><b>Rent the second builder</b> (about 1,000 gems for 2 days) only during a push window like Strongest Governor construction day or KvK Day 1.</li>
+      <li><b>Construction speed research</b> (Tooling Up) and the construction speed buff pay for themselves on every upgrade.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= RESEARCH ================= -->
+<section class="view" id="v-research" hidden>
+  <div class="head">
+    <span class="eyebrow">Academy</span>
+    <h2>Research that pays back</h2>
+    <p class="lede">The academy is a long game. Research that speeds up other research pays off on every project after it, so it comes first.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="display:grid;gap:10px">
+      <h3>Priority order</h3>
+      <ol class="clean" id="researchOrder"></ol>
+    </div>
+    <div class="card" style="display:grid;gap:10px">
+      <h3>Picking within the Battle tree</h3>
+      <ul class="clean">
+        <li><b>All-troop nodes first:</b> Assault Techniques (lethality) and Survival Techniques (health) help every march.</li>
+        <li><b>Lethality before Attack</b>, <b>Health before Defense.</b> They multiply better at your stage.</li>
+        <li><b>Archer stats next</b> if you lead Bear rallies. Infantry stats next if you garrison or fight Vikings.</li>
+        <li><b>Economy tree:</b> only gathering speed and load. Resource output research gives very little at your level.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="display:grid;gap:10px">
+    <h3>Be more productive in the academy</h3>
+    <ol class="steps">
+      <li><div><div class="step-t">The academy is never idle</div><div class="step-d">An empty research queue is the biggest loss. Before logging off, queue the longest research you can afford.</div></div></li>
+      <li><div><div class="step-t">Help first, speedups second</div><div class="step-d">Request alliance help right after starting. Every help cuts the timer.</div></div></li>
+      <li><div><div class="step-t">Time big finishes for scoring days</div><div class="step-d">Strongest Governor and KvK prep each have a research day. Save research speedups for it and finish your longest projects then.</div></div></li>
+      <li><div><div class="step-t">Cheap power, fast</div><div class="step-d">Many low-level nodes give 10,000+ power for one or two hours of research. Clear them during power events.</div></div></li>
+      <li><div><div class="step-t">Keep the Academy level matched to TC</div><div class="step-d">Academy level unlocks higher research tiers and is required for TC 30 → TG1.</div></div></li>
+      <li><div><div class="step-t">Use the research speed buff during long projects</div><div class="step-d">Activate it when a multi-day project starts, not on a short one.</div></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= GEAR ================= -->
+<section class="view" id="v-gear" hidden>
+  <div class="head">
+    <span class="eyebrow">Gear, Charms, Widgets, Pets</span>
+    <h2>Best gear and upgrade order</h2>
+    <p class="lede">Four separate systems. Each one has its own materials, so you can push them in parallel.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="display:grid;gap:8px">
+      <h3>Governor Gear <span class="kind">TC 22</span></h3>
+      <p class="kicker">Attack and Defense. Materials: Satin Threads, Gilded Threads, Artisan's Vision.</p>
+      <ul class="clean">
+        <li>Order: <b>Infantry → Archer → Cavalry.</b></li>
+        <li>Keep pieces close in level so set bonuses stay active.</li>
+        <li>Upgrade during Strongest Governor / Hall of Governors gear days for double value.</li>
+        <li>Joiners: modest investment. Rally leaders: push hard.</li>
+      </ul>
+    </div>
+    <div class="card" style="display:grid;gap:8px">
+      <h3>Governor Charms <span class="kind">TC 25</span></h3>
+      <p class="kicker">Health and Lethality. Materials from the Crystal Cave in Mystic Trial and events.</p>
+      <ul class="clean">
+        <li>Order: <b>Infantry → Archer → Cavalry.</b></li>
+        <li>Bring every charm to level 3, then push key ones to 5.</li>
+        <li>If you run your own Bear rallies, move <b>Archer Lethality</b> up.</li>
+      </ul>
+    </div>
+    <div class="card" style="display:grid;gap:8px">
+      <h3>Hero Gear</h3>
+      <p class="kicker">Enhancement, Mastery Forging (Forgehammers), Imbuement at TC 30.</p>
+      <ul class="clean">
+        <li>Gear goes on your <b>top three heroes only</b>.</li>
+        <li>Push one piece to a milestone, then move to the next, instead of spreading levels thin.</li>
+        <li>Forgehammers are the scarcest material. Save them for Mastery Forging on Mythic gear, ideally on a KvK prep day that scores them.</li>
+      </ul>
+    </div>
+    <div class="card" style="display:grid;gap:8px">
+      <h3>Widgets (Exclusive Gear)</h3>
+      <p class="kicker">275 widgets take one hero to level 10.</p>
+      <ul class="clean">
+        <li>Only active when you <b>lead a rally</b> or <b>garrison</b> a rallyable building.</li>
+        <li>Joiners: skip widgets until your lead heroes are done.</li>
+        <li>Widget stats multiply, so a few levels on your main leader is worth more than spreading them.</li>
+      </ul>
+    </div>
+    <div class="card" style="display:grid;gap:8px">
+      <h3>Pets</h3>
+      <p class="kicker">Unlock by server age. Each new pet needs the previous one levelled.</p>
+      <ul class="clean">
+        <li><b>Lion is the first real priority</b> (around server day 113): its passive drops feed gear, Truegold and charms.</li>
+        <li>Lion needs Moose at level 15. Mighty Bison needs Giant Rhino at 30. Plan one pet ahead.</li>
+        <li>Save Advanced Taming Marks for KvK prep pet day (about 15,000 points each).</li>
+      </ul>
+    </div>
+    <div class="card" style="display:grid;gap:8px">
+      <h3>Troops</h3>
+      <ul class="clean">
+        <li>Keep all three training buildings running nonstop.</li>
+        <li><b>Promote</b> old tiers instead of training fresh troops when you need power fast.</li>
+        <li>Truegold troop levels and T11 (War Academy) come after TC 30.</li>
+        <li>Keep hospital capacity above the troops you risk in a fight.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card" style="display:grid;gap:10px">
+    <h3>Formations cheat sheet</h3>
+    <div class="grid3" id="formations"></div>
+    <p class="kicker">Ratios are community-tested starting points. Use the march preview in-game and adjust a few percent at a time.</p>
+  </div>
+</section>
+
+<!-- ================= POWER ================= -->
+<section class="view" id="v-power" hidden>
+  <div class="head">
+    <span class="eyebrow">Power</span>
+    <h2>Grow power efficiently</h2>
+    <p class="lede">Power is a score, not strength. The goal is the cheapest real stats per resource. Here is where your resources go furthest at TC 23, best first.</p>
+  </div>
+  <ol class="steps">
+    <li class="top"><div><div class="step-t">Clear cheap research nodes</div><div class="step-d">Low-tier nodes you skipped give large power for minutes of research. Fastest power per speedup in the game.</div></div></li>
+    <li class="top"><div><div class="step-t">Town Center and its requirement buildings</div><div class="step-d">Each TC level is a large power jump and unlocks the next tier of everything else.</div></div></li>
+    <li><div><div class="step-t">Level your three main heroes to cap</div><div class="step-d">More troop capacity per march and more stats. Hero XP is cheap compared to shards.</div></div></li>
+    <li><div><div class="step-t">Promote and train troops at your highest tier</div><div class="step-d">Promotion converts old troops for less than fresh training. Do it on troop scoring days.</div></div></li>
+    <li><div><div class="step-t">Governor Gear and Charms</div><div class="step-d">Big stat gains, slower power. Good long-term value.</div></div></li>
+    <li><div><div class="step-t">Hero stars and widgets</div><div class="step-d">Biggest real combat value for rally leaders, but shard-limited.</div></div></li>
+    <li><div><div class="step-t">Pets</div><div class="step-d">Steady, cheap, and Lion pays back materials.</div></div></li>
+  </ol>
+  <div class="note good"><b>Double-dip rule:</b> every one of these also scores in Strongest Governor, KvK prep or Alliance Mobilization. Line up the action with the event day and you get the power and the event rewards from the same resources.</div>
+  <div class="note warn"><b>Avoid power traps:</b> resource-output research, upgrading every decorative building, and training low-tier troops you'll never fight with all raise power but not strength.</div>
+</section>
+
+<!-- ================= EVENTS ================= -->
+<section class="view" id="v-events" hidden>
+  <div class="head">
+    <span class="eyebrow">Events</span>
+    <h2>Event playbooks</h2>
+    <p class="lede">Tap an event for before, during and after steps. Exact times vary by server, so the in-game Event Center has the final say on dates and point values.</p>
+  </div>
+  <div class="card" style="display:grid;gap:8px">
+    <h3>The 4-week cycle</h3>
+    <p class="kicker">Most kingdoms that have finished their first KvK rotate through this loop.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Week</th><th>Main event</th><th>Save for it</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>Swordland Showdown (brawl week)</td><td>Healing speedups, full hospital</td></tr>
+        <tr><td class="num">2</td><td>Strongest Governor</td><td>Construction, research, training speedups</td></tr>
+        <tr><td class="num">3</td><td>Alliance Mobilization</td><td>Do tasks you'd do anyway</td></tr>
+        <tr><td class="num">4</td><td>KvK prep, then battle</td><td>Truegold, Mithril, Taming Marks, roulette gems, shards</td></tr>
+      </tbody>
+    </table></div>
+    <p class="kicker">Bear Hunt runs all month on your alliance's schedule. Viking Vengeance runs every two weeks. Tri-Alliance Clash runs monthly.</p>
+  </div>
+  <div style="display:grid;gap:10px" id="eventList"></div>
+</section>
+
+<!-- ================= SPEND ================= -->
+<section class="view" id="v-spend" hidden>
+  <div class="head">
+    <span class="eyebrow">Gems and packs</span>
+    <h2>Where gems and money go furthest</h2>
+    <p class="lede" id="spendLede"></p>
+  </div>
+  <div class="grid2">
+    <div class="card" style="display:grid;gap:8px">
+      <h3>Best value</h3>
+      <ol class="clean">
+        <li><b>Permanent second builder</b> (around $2.99). The single best purchase in the game.</li>
+        <li><b>Hero Roulette</b> for a hero you will actually lead with. F2P guides suggest about 70% of gems here.</li>
+        <li><b>VIP time</b> (about 20% of gems) for the queue and stat buffs.</li>
+        <li><b>Temporary builder rental</b> (about 10%) only during push windows.</li>
+        <li>For low spenders: one monthly card plus the event pass you can actually finish.</li>
+      </ol>
+    </div>
+    <div class="card" style="display:grid;gap:8px">
+      <h3>Skip these</h3>
+      <ul class="clean">
+        <li>VIP XP purchases</li>
+        <li>Basic hero pulls</li>
+        <li>Shop refreshes</li>
+        <li>Buying speedups or resources with gems</li>
+        <li>Chasing a leaderboard rank you can't reach. It burns the stockpile you need for the next event.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card" style="display:grid;gap:8px">
+    <h3>Event shop buy order</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Shop</th><th>Buy first</th></tr></thead>
+      <tbody>
+        <tr><td>Mystic Trial shop</td><td>Truegold Dust, then Mithril. Save Trial Crystals until Dust is in stock.</td></tr>
+        <tr><td>Alliance Championship shop</td><td>Master Emblems</td></tr>
+        <tr><td>KvK shop</td><td>Hero shards for your main heroes, then gear materials</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ================= DATA ================= -->
+<section class="view" id="v-data" hidden>
+  <div class="head">
+    <span class="eyebrow">Your data</span>
+    <h2>Can this guide read my game?</h2>
+    <p class="lede">No, and nothing safely can. Here's why, and the quick way to give me exact numbers instead.</p>
+  </div>
+  <div class="card" style="display:grid;gap:10px">
+    <h3>Why your phone's game files won't help</h3>
+    <ul class="clean">
+      <li><b>Your account lives on Century Games' servers</b>, not on your phone. The app's local files are mostly cached art and settings, not your heroes, research or gear.</li>
+      <li><b>Reaching app files</b> on Android needs root access, and on iPhone it isn't possible without jailbreaking. Both put your phone and account at risk.</li>
+      <li><b>Third-party tools that read or change game data break the terms of service</b> and can get your account banned. Don't install anything that asks for your login.</li>
+    </ul>
+  </div>
+  <div class="card" style="display:grid;gap:10px">
+    <h3>What works instead</h3>
+    <ol class="steps">
+      <li class="top"><div><div class="step-t">Fill in the profile on My Plan</div><div class="step-d">TC level, server age, hero generation, role and spending. That tunes everything in this app.</div></div></li>
+      <li class="top"><div><div class="step-t">Send Claude screenshots</div><div class="step-d">Profile page, your hero list with stars and levels, Academy research trees, Governor Gear, Charms and your bag (speedups, Truegold, shards). Claude can read the numbers and give you a plan for your exact account.</div></div></li>
+      <li><div><div class="step-t">Or copy your snapshot below</div><div class="step-d">Paste it into a chat with Claude along with any extra details.</div></div></li>
+    </ol>
+  </div>
+  <div class="card" style="display:grid;gap:10px">
+    <div class="row"><h3>Account snapshot</h3><button class="btn" id="copySnap" type="button">Copy</button></div>
+    <label for="extraNotes" class="kicker">Add details (hero stars, inventory, what you're stuck on)</label>
+    <textarea id="extraNotes" placeholder="e.g. Amadeus 4★ L60, Petra 3★, Vivian 2★. 12 days of construction speedups. Stuck on Academy 24."></textarea>
+    <textarea id="snapshot" readonly aria-label="Account snapshot text"></textarea>
+    <span class="kicker" id="copyMsg" aria-live="polite"></span>
+  </div>
+</section>
+
+</main>
+<footer class="wrap">Community research compiled October 2026 from Kingshot player guides and calculators. Not affiliated with Century Games. Point values and unlock days change with updates; check in-game before spending big.</footer>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem("ksg:"+k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem("ksg:"+k, JSON.stringify(v)); }catch(e){} }
+};
+
+/* ---------- data ---------- */
+const HEROES = [
+  // gen, name, troop, tier, roles, note, joiner
+  [1,"Amadeus","Infantry","S","Rally lead, Bear","Top rally and Bear Hunt lead in every generation. Lethality first skill also makes him a strong joiner. Build him first.",true],
+  [1,"Jabel","Cavalry","B","Garrison, early rally","Strong early and in garrisons. Easy to obtain, good F2P filler.",false],
+  [1,"Helga","Infantry","B","Early tank","Useful early, replaced once Gen 2 to 4 infantry arrive.",false],
+  [1,"Saul","Archer","C","Economy","Mostly a gathering and economy hero now.",false],
+  [2,"Zoe","Infantry","B","Garrison (budget)","Best budget garrison defender. Fine until Alcar or Triton.",false],
+  [2,"Hilde","Cavalry","B","Garrison, support","Solid support. Outclassed later.",false],
+  [2,"Marlin","Archer","A","Rally damage (F2P)","Great F2P archer, unlockable through Hall of Heroes. Still useful as an archer until Vivian or Yang.",false],
+  [3,"Petra","Cavalry","A","Rally, Bear","Long-lasting cavalry pick for rallies. Many guides keep her near the top.",false],
+  [3,"Eric","Infantry","B","Garrison","Defensive infantry. Middle of the pack today.",false],
+  [3,"Jaeger","Archer","B","Rally damage","Strong in Gen 3, outclassed by later archers.",false],
+  [4,"Alcar","Infantry","A","Garrison tank","One of the best garrison tanks. Some guides rank him top tier for defense.",false],
+  [4,"Margot","Cavalry","A","Rally, Bear joiner","Strong cavalry and a good Bear joiner.",true],
+  [4,"Rosa","Archer","B","Rally damage","Good in Gen 4, outclassed later.",false],
+  [5,"Long Fei","Infantry","B","Garrison","Defensive infantry for garrisons.",false],
+  [5,"Thrud","Cavalry","B","Rally","Middle tier cavalry.",false],
+  [5,"Vivian","Archer","A","Rally, Bear joiner","Strong archer and a good Bear joiner.",true],
+  [6,"Triton","Infantry","A","Garrison","Best Gen 6 defender. His buffs help all troop types.",false],
+  [6,"Sophia","Cavalry","A","Rally, Arena","Confusion control. Often the best-value roulette pull of her generation.",false],
+  [6,"Yang","Archer","A","Rally damage","Best Gen 6 damage hero and the safest single pick for low spenders.",false],
+  [7,"Charles","Infantry","A","Garrison","Defensive infantry for garrisons.",false],
+  [7,"Ava","Cavalry","S","Rally, Bear joiner","Top-tier cavalry and a strong Bear joiner.",true],
+  [7,"Wee & Woo","Archer","S","Rally, Bear","Top-tier archer for Bear Hunt and rallies. Also a strong joiner.",true],
+  [8,"Diego","Infantry","A","Garrison, rally","Newest infantry (server day ~533).",false],
+  [8,"Liz","Cavalry","A","Rally","Newest cavalry (server day ~533).",false],
+  [8,"Luna","Archer","S","Rally damage, Bear","Newest archer. Ranked S tier for damage.",false],
+  [0,"Chenko","Cavalry","A","Bear joiner (epic)","Cheap epic hero whose first skill is one of the best Bear joiner skills. Great F2P value.",true],
+  [0,"Amane","Archer","A","Bear joiner (epic)","Cheap epic Bear joiner.",true],
+  [0,"Yeonwoo","Archer","A","Bear joiner (epic)","Cheap epic Bear joiner with a lethality first skill.",true]
+].map(h => ({gen:h[0],name:h[1],troop:h[2],tier:h[3],role:h[4],note:h[5],joiner:h[6]}));
+
+const BEST = { // best pick per troop by gen available, for rally/bear
+  Infantry:[[1,"Amadeus"]],
+  Cavalry:[[1,"Jabel"],[3,"Petra"],[7,"Ava"]],
+  Archer:[[1,"Saul"],[2,"Marlin"],[5,"Vivian"],[6,"Yang"],[7,"Wee & Woo"],[8,"Luna"]],
+  Garrison:[[1,"Jabel"],[2,"Zoe"],[4,"Alcar"],[6,"Triton"]]
+};
+const pickBest = (list, gen) => list.filter(x => x[0] <= gen).slice(-1)[0][1];
+
+const EVENTS = [
+ {name:"Bear Hunt", kind:"Alliance PvE", when:"Recurring on your alliance's schedule (usually every other day), short window",
+  goal:"Deal as much damage as possible to the Bear in rallies. The Bear never fights back, so only offense counts.",
+  before:["Heal everything and fill your marches.","Activate attack and lethality buffs just before the window.","Set your formation: <b>1% infantry / 10% cavalry / 89% archers</b> (Gen 4+). Earlier gens: around 10/10/80. Keep at least ~5,000 infantry in the march.","Set a dedicated Bear joiner lineup with the joiner hero in the <b>lead slot</b>."],
+  during:["Leaders: launch rallies back to back with your best archer lineup.","Joiners: join every rally you can. Only your lead hero's first skill counts, so lead with Chenko, Amane, Yeonwoo, Amadeus, Vivian, Margot, Ava or Wee & Woo.","Never send an empty-skill hero as lead. Joining with no hero beats joining with a useless first skill.","Keep every march slot busy until the timer ends."],
+  after:["Claim damage rewards.","Check the damage report and compare formations against last time."]},
+ {name:"Viking Vengeance", kind:"Alliance PvE", when:"Every two weeks, on two event days",
+  goal:"Survive 20 waves of Viking attacks on member cities. Waves 10 and 20 hit the Alliance HQ.",
+  before:["<b>Bring every march home.</b> Gathering troops don't defend your city.","Heal everything and use defense and health buffs.","Pick a difficulty your alliance clears cleanly. A clean clear beats a failed hard run.","Plan who reinforces whom. Strong players cover weaker ones."],
+  during:["Infantry-heavy setup with your best garrison heroes (Alcar, Triton, Charles, Zoe on a budget).","You hold a wave if you kill at least 50% of the attackers.","After two lost waves the Vikings stop hitting you. Keep scoring by reinforcing allies, which doesn't cost them points.","Waves 7, 14 and 17 score the most. Be online for them.","Reinforce the HQ before waves 10 and 20."],
+  after:["Heal and claim rewards.","Note which members fell early so the alliance can cover them next time."]},
+ {name:"Kingdom of Power (KvK)", kind:"Kingdom PvP", when:"Monthly. Kingdom must be 70+ days old. Prep 5 days, then battle (castle at 12:00 UTC)",
+  goal:"Score prep points to unlock personal chests and help your kingdom win prep. The winning kingdom attacks with the State Bonus in the castle battle.",
+  table:true,
+  before:["Stockpile through the month: Truegold, Mithril, Advanced Taming Marks, roulette gems, Mythic shards, Forgehammers, widgets, speedups.","Turn on scoring buffs before Day 1.","Aim to hit the <b>200,000-point chest every day</b>. That's worth more than overspending on one day."],
+  during:["Each prep day scores different actions. Check the day's scoring list each morning and only spend what scores today.","Battle phase: shield up if you aren't fighting. Keep resources inside warehouse protection.","Fighters: join rallies on assigned targets only, and stay in voice/chat with your leaders.","Keep hospital capacity free. Heal between hits."],
+  after:["Field triage: heal and recover troops.","Claim State Medals (one per prep day plus one for the castle battle).","Spend the KvK shop on shards for your main heroes."]},
+ {name:"Strongest Governor", kind:"Solo ranking", when:"7 days, every 4-week cycle. Replaced Hall of Governors",
+  goal:"Each day scores one activity (construction, research, troops, hero growth, power). Points come from power gained, not time spent.",
+  before:["Save speedups by type for their day.","Line up a big upgrade (your next TC level) to finish on construction day.","Start long research so you can finish it on research day."],
+  during:["Spend only on the matching day.","Gear and charm upgrades score well on their day. Push them here.","If KvK prep is close, take the easy chests and hold the rest for KvK."],
+  after:["Claim chests the moment you hit each threshold."]},
+ {name:"Swordland Showdown", kind:"Alliance PvP", when:"Every two weeks on Sunday, 1-hour battle. Alliance must be top 20 in Alliance Power",
+  goal:"Two alliances fight over buildings for Relic Points. Troops are only injured, never lost.",
+  before:["Sign up during registration. Each legion has 30 fighters and 10 substitutes.","Get assigned a role: building holder, rally leader, or support."],
+  during:["Buildings win, not kills. Grab first-capture bonuses early.","Hold Sanctums and bonus buildings. Holding a building 30+ minutes raises your personal point rate.","Only push the Swordshrine if you can hold it.","Launch rallies together on the caller's count."],
+  after:["Personal rewards follow your own Relic Point rank, so playing well pays even in a loss."]},
+ {name:"Tri-Alliance Clash", kind:"Alliance PvP", when:"Monthly. Vote Mon–Tue, sign up Wed–Thu, matchmaking Fri, battle Sat",
+  goal:"Three alliances fight for 60 minutes: 3 min prep, 17 min Seize & Conquer, 20 min Garrison Occupation, 20 min Temple Onslaught.",
+  before:["Know your lane or building assignment before the match.","Know who the lead caller and backup caller are."],
+  during:["Points come from holding buildings and timing, not kills.","Main fighters hold their lane. Support keeps lanes stable. The reaction team moves only on call.","Arrive at the Temple phase together. The Temple gives a big end bonus."],
+  after:["Heal and claim rewards."]},
+ {name:"Alliance Mobilization", kind:"Alliance", when:"Week 3 of the cycle",
+  goal:"Members pick tasks and complete them for alliance points.",
+  before:["Check which tasks match what you were going to do anyway."],
+  during:["Take tasks that match your queues (building, research, training, gathering).","Don't take tasks you can't finish. Abandoned tasks waste alliance slots."],
+  after:["Claim personal and alliance rewards."]},
+ {name:"Hero Roulette", kind:"Gem event", when:"Rotating",
+  goal:"Spend gems for spins with a chance at the featured hero's shards.",
+  before:["Only spin if the featured hero is in your planned lineup.","Hold spins for KvK prep if roulette scores there (about 8,000 points per spin)."],
+  during:["Spin in one sitting to reach milestone rewards."],
+  after:["Use shards on your main heroes."]},
+ {name:"Mystic Trial", kind:"Solo PvE", when:"Weekly rotation across six rooms",
+  goal:"PvE rooms that each feed a progression system (Coliseum: hero gear, Forest of Life: pets, Crystal Cave: charms).",
+  before:["Set the right lineup for each room."],
+  during:["Clear every room you can each rotation."],
+  after:["Trial shop: Truegold Dust first, then Mithril. Hold Trial Crystals until Dust is in stock."]},
+ {name:"Eternity's Reach", kind:"Competitive", when:"Periodic",
+  goal:"Collect copper from veins for leaderboard points.",
+  before:["Plan to run several income streams at once."],
+  during:["Rotate veins about every 60 seconds instead of camping one.","Recall marches when the Fractured Vein warning appears.","The Peak of Eternity unlocks with 7 minutes left. One short touch for the bonus is enough.","Don't spend the level 5 buff on Fractured Veins. It only boosts regular veins."],
+  after:["Claim rank rewards."]},
+ {name:"Alliance Championship", kind:"Alliance PvP", when:"Mon–Sat phases",
+  goal:"Alliance lanes battle with set formations.",
+  before:["Main lane usually uses a balanced 50/20/30 rally formation."],
+  during:["Follow lane assignments."],
+  after:["Shop: Master Emblems first."]},
+ {name:"Arena", kind:"Daily", when:"Every day",
+  goal:"Use your daily attempts against other players' hero teams.",
+  before:["Set a defense lineup. Control heroes such as Sophia do well."],
+  during:["Spend all free attempts. Pick opponents you can beat."],
+  after:["Claim daily and season rewards."]}
+];
+
+const KVK_ITEMS = [
+  ["Mithril","Day 4–5","40,000"],
+  ["Tempered Truegold","Day 2","30,000"],
+  ["Advanced Taming Mark","Day 3 (pets)","15,000"],
+  ["Hero Roulette spin","Day 2 or 3","8,000"],
+  ["Widget","Day 4 or 5","8,000"],
+  ["Forgehammer","Day 4–5","4,000"],
+  ["Mythic hero shard","Day 2 or 3","3,040"],
+  ["Truegold","Day 1 (construction)","2,000"],
+  ["1 min of speedup","Matching day","30"]
+];
+
+/* ---------- profile ---------- */
+const DEF = {tc:23, day:"", gen:6, role:"joiner", spend:"f2p", queue:"no"};
+let P = Object.assign({}, DEF, store.get("profile", {}));
+
+const tcSel = $("#pTc");
+for(let i=15;i<=30;i++) tcSel.add(new Option("TC "+i, i));
+["TG1","TG2","TG3","TG4","TG5","TG6+"].forEach((t,i)=> tcSel.add(new Option("TC 30 "+t, 31+i)));
+const genSel = $("#pGen");
+for(let g=1; g<=8; g++) genSel.add(new Option("Gen "+g, g));
+
+function fillForm(){
+  tcSel.value = P.tc; $("#pDay").value = P.day; genSel.value = P.gen;
+  $("#pRole").value = P.role; $("#pSpend").value = P.spend; $("#pQueue").value = P.queue;
+}
+function readForm(){
+  P.tc = +tcSel.value; P.day = $("#pDay").value; P.gen = +genSel.value;
+  P.role = $("#pRole").value; P.spend = $("#pSpend").value; P.queue = $("#pQueue").value;
+  store.set("profile", P); renderAll();
+}
+$("#profileForm").addEventListener("change", readForm);
+$("#pDay").addEventListener("input", readForm);
+$("#profileChip").addEventListener("click", ()=>{ show("plan"); tcSel.focus(); });
+
+const tcLabel = tc => tc<=30 ? "TC "+tc : "TG"+(tc-30);
+
+/* ---------- plan ---------- */
+function buildPlan(){
+  const s = [], tc = P.tc, day = +P.day || 0;
+  const lead = P.role !== "joiner";
+  if(P.queue === "no"){
+    s.push(P.spend === "f2p"
+      ? ["Rent a second builder only for push windows","About 1,000 gems for 2 days. Use it on Strongest Governor construction day or KvK Day 1.","soon"]
+      : ["Buy the permanent second builder","Around $2.99. Doubles your building speed for the rest of the game.","now"]);
+  }
+  if(tc < 25) s.push(["Push the Town Center to 25","Unlocks Governor Charms (Health and Lethality). Build only the buildings TC 24 and 25 require.","now"]);
+  else if(tc < 30) s.push(["Push the Town Center to 30","Truegold levels open at TC 30. Upgrade only what the next TC level requires and keep Academy and Embassy level with it.","now"]);
+  else if(tc < 35) s.push(["Climb Truegold levels to TG5","Spend Truegold on construction day of KvK prep or Strongest Governor. TG5 unlocks the War Academy path.","now"]);
+  else s.push(["Decide: T10 Truegold troops or T11","Most F2P and low spenders get more from T10 TG8 than T11 TG5.","soon"]);
+  s.push(["Keep the Academy running 24/7","Growth tree first: Tool Enhancement, Tooling Up, Command Tactics, Regimental Expansion. Queue the longest research before you sleep.","ongoing"]);
+  if(lead){
+    s.push(["Build your rally trio: "+pickBest(BEST.Infantry,P.gen)+", "+pickBest(BEST.Cavalry,P.gen)+", "+pickBest(BEST.Archer,P.gen),"Hero levels, gear and widgets go to these three before anyone else.","now"]);
+    s.push(["Widgets on your rally leader","Widgets only work when you lead a rally or garrison, which is exactly your role.","soon"]);
+  } else {
+    s.push(["Level one Bear joiner hero","Chenko, Amane or Yeonwoo are cheap epics with strong first skills. Only the lead hero's first skill counts when you join.","now"]);
+    s.push(["Build "+pickBest(BEST.Infantry,P.gen)+" and "+pickBest(BEST.Archer,P.gen)+" as your main pair","They carry your solo marches and still help the alliance. Skip widgets for now.","soon"]);
+  }
+  if(tc >= 22) s.push(["Governor Gear: Infantry, then Archer, then Cavalry","Keep pieces close in level so set bonuses stay on. Upgrade on gear scoring days.","ongoing"]);
+  if(tc >= 25) s.push(["Charms to level 3 across the board, then key ones to 5","Infantry first, then Archer (Archer Lethality earlier if you lead Bear rallies).","ongoing"]);
+  if(day >= 113 || !day) s.push(["Pets: work toward Lion","Lion's passive drops feed gear, Truegold and charms. Needs Moose at 15 first.","ongoing"]);
+  if(day && day < 70) s.push(["Get ready for your first KvK at server day 70","Start stockpiling Truegold, Mithril, taming marks and gems now.","soon"]);
+  else s.push(["Stockpile for KvK prep","Truegold, Mithril, Taming Marks, roulette gems, Mythic shards, Forgehammers. Spend only on the day that scores them.","ongoing"]);
+  s.push(["Gather nonstop with idle marches","TC 28 to 30 costs huge amounts of resources. Research gathering speed in Economy.","ongoing"]);
+  return s;
+}
+function renderPlan(){
+  const tc = P.tc;
+  let stage, note, goal, gnote;
+  if(tc < 25){ stage="Upper mid game"; note="You're past the early rush. Each TC level now unlocks a new power system."; goal="Reach TC 25"; gnote="Unlocks Governor Charms."; }
+  else if(tc < 30){ stage="Late mid game"; note="The TC 28–30 stretch is the most resource-hungry part of the game."; goal="Reach TC 30"; gnote="Opens Truegold levels and gear imbuement."; }
+  else if(tc < 35){ stage="End game"; note="Truegold levels, Mythic gear and newest-gen heroes decide your strength now."; goal="Reach TG5"; gnote="Opens the path to the War Academy and T11."; }
+  else { stage="Deep end game"; note="Gains come from Truegold troops, hero stars and widgets."; goal="Max your main march"; gnote="Stars, widgets and Truegold troop levels."; }
+  $("#stageName").textContent = stage; $("#stageNote").textContent = note + " You're at " + tcLabel(tc) + ".";
+  $("#goalName").textContent = goal; $("#goalNote").textContent = gnote;
+  $("#priorityList").innerHTML = buildPlan().map((x,i)=>
+    `<li class="${i<3?"top":""}"><div><div class="step-t">${x[0]}<span class="tag ${x[2]}">${x[2]==="now"?"This week":x[2]==="soon"?"Next":"Ongoing"}</span></div><div class="step-d">${x[1]}</div></div></li>`).join("");
+  $("#chipTc").textContent = tc<=30 ? tc : "TG"+(tc-30);
+  $("#chipGen").textContent = P.gen;
+}
+
+/* ---------- daily checklist ---------- */
+const DAILY = [
+  "Claim login reward, mail and free chests",
+  "Every builder busy (ask alliance help)",
+  "Academy researching (ask alliance help)",
+  "All three troop buildings training",
+  "Send alliance helps to everyone",
+  "Idle marches out gathering",
+  "Intel missions and daily missions",
+  "Arena: use all free attempts",
+  "Join every Bear Hunt rally (on Bear days)",
+  "Alliance tech donation",
+  "Check today's event scoring before spending anything",
+  "Redeem new gift codes"
+];
+const today = new Date().toISOString().slice(0,10);
+let checks = store.get("checks", {date:today, done:[]});
+if(checks.date !== today) checks = {date:today, done:[]};
+function renderChecks(){
+  $("#dailyList").innerHTML = DAILY.map((t,i)=>
+    `<label><input type="checkbox" id="d${i}" data-i="${i}" ${checks.done.includes(i)?"checked":""}><span>${t}</span></label>`).join("");
+  const n = checks.done.length;
+  $("#checkCount").textContent = n+" / "+DAILY.length;
+  $("#checkBar").style.width = (n/DAILY.length*100)+"%";
+}
+$("#dailyList").addEventListener("change", e=>{
+  const i = +e.target.dataset.i;
+  checks.done = e.target.checked ? [...new Set([...checks.done, i])] : checks.done.filter(x=>x!==i);
+  store.set("checks", checks); renderChecks();
+});
+$("#resetChecks").addEventListener("click", ()=>{ checks.done=[]; store.set("checks",checks); renderChecks(); });
+
+/* ---------- heroes ---------- */
+let filter = "all";
+function renderHeroes(){
+  const g = P.gen;
+  const inf = pickBest(BEST.Infantry,g), cav = pickBest(BEST.Cavalry,g), arc = pickBest(BEST.Archer,g), gar = pickBest(BEST.Garrison,g);
+  const joiners = HEROES.filter(h=>h.joiner && h.gen<=g).map(h=>h.name);
+  const L = [
+    ["Rally / Bear lead", `${inf} · ${cav} · ${arc}`, "Archer-heavy for Bear, 50/20/30 for player rallies."],
+    ["Bear joiner (lead slot)", joiners.slice(0,4).join(", "), "Put one of these first. Only their first skill is used."],
+    ["Garrison / Vikings", `${gar} · ${g>=4?"Margot":"Hilde"} · ${g>=5?"Vivian":"Marlin"}`, "Infantry-heavy, about 60/20/20."],
+    ["Solo field march", `${inf} · ${cav} · ${arc}`, "Same core trio. Gear goes here first."]
+  ];
+  $("#lineups").innerHTML = L.map(x=>`<div style="display:grid;gap:4px;min-width:0"><span class="eyebrow" style="color:var(--muted)">${x[0]}</span><b>${x[1]}</b><span class="kicker">${x[2]}</span></div>`).join("");
+
+  const order = P.role === "joiner"
+    ? [`<b>Amadeus</b> to level cap. Best rally hero and a top joiner.`, `<b>One epic joiner</b> (Chenko, Amane or Yeonwoo): raise its first skill. That's the only part that counts when joining.`, `<b>${arc}</b>: your archer carries Bear damage on solo marches.`, `<b>${cav}</b> next. Skip widgets until you start leading rallies.`, `<b>${gar}</b> for city defense and Viking waves.`]
+    : [`<b>Amadeus</b>: level, stars, gear, widgets.`, `<b>${arc}</b>: your main damage. Second in line for everything.`, `<b>${cav}</b>: completes the rally trio.`, `<b>${gar}</b>: garrison lead for castle and Viking defense.`, `<b>Joiner heroes</b> last: just their first skill.`];
+  $("#heroOrder").innerHTML = order.map(x=>`<li>${x}</li>`).join("");
+
+  const list = HEROES.filter(h => filter==="all" ? true : filter==="joiner" ? h.joiner : h.troop===filter)
+    .sort((a,b)=> "SABC".indexOf(a.tier)-"SABC".indexOf(b.tier) || b.gen-a.gen);
+  $("#heroGrid").innerHTML = list.map(h=>{
+    const locked = h.gen > g;
+    return `<article class="hero ${locked?"locked":""}"><div class="tier ${h.tier}">${h.tier}</div><div style="min-width:0"><h4>${h.name}</h4>
+      <div class="meta"><span class="troop ${h.troop}">${h.troop}</span><span>${h.gen? "Gen "+h.gen : "Epic"}</span><span>${h.role}</span>${locked?"<span>Not on your server yet</span>":""}</div>
+      <p>${h.note}</p></div></article>`;
+  }).join("");
+}
+$("#troopFilter").addEventListener("click", e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  filter = b.dataset.f;
+  document.querySelectorAll("#troopFilter .pill").forEach(p=>p.setAttribute("aria-pressed", p===b));
+  renderHeroes();
+});
+
+/* ---------- research ---------- */
+function renderResearch(){
+  const items = [
+    "<b>Tool Enhancement</b> (research speed). First for every account.",
+    "<b>Tooling Up</b> (construction speed).",
+    "<b>Command Tactics</b> (march and command bonuses).",
+    "<b>Regimental Expansion</b> (deployment capacity, more troops per march).",
+    P.role==="joiner" && P.spend==="f2p"
+      ? "<b>Gathering speed and load</b> in Economy. You need resources for TC 28–30."
+      : "<b>Assault Techniques and Survival Techniques</b> (all-troop lethality and health).",
+    P.role==="joiner" && P.spend==="f2p"
+      ? "<b>Battle tree</b> after that. Save big battle projects to finish on event research days."
+      : "<b>Archer lethality and attack</b> for Bear damage, then infantry health and defense.",
+    "<b>Gathering research</b> in Economy. Skip resource output."
+  ];
+  $("#researchOrder").innerHTML = items.map(x=>`<li>${x}</li>`).join("");
+}
+
+/* ---------- formations ---------- */
+function bar(i,c,a){ return `<div class="form-bar"><span class="fb-i" style="flex:${Math.max(i,1)}">${i>=8?i+"%":""}</span><span class="fb-c" style="flex:${c}">${c>=8?c+"%":""}</span><span class="fb-a" style="flex:${a}">${a}%</span></div>`; }
+function renderFormations(){
+  const F = [["Bear Hunt (Gen 4+)",1,10,89,"Defense doesn't matter. Keep ~5k infantry minimum."],
+             ["Rally on players",50,20,30,"Safe all-round setup for castles and Tri-Alliance."],
+             ["Garrison / Vikings",60,20,20,"Infantry soaks damage. Lead with your best defender."]];
+  $("#formations").innerHTML = F.map(f=>`<div style="min-width:0"><b>${f[0]}</b>${bar(f[1],f[2],f[3])}<div class="legend"><span><i class="fb-i"></i>Inf ${f[1]}</span><span><i class="fb-c"></i>Cav ${f[2]}</span><span><i class="fb-a"></i>Arc ${f[3]}</span></div><p class="kicker" style="margin-top:6px">${f[4]}</p></div>`).join("");
+}
+
+/* ---------- events ---------- */
+function renderEvents(){
+  const openSet = store.get("open", ["Bear Hunt"]);
+  $("#eventList").innerHTML = EVENTS.map(ev=>{
+    const tbl = ev.table ? `<div><h5>Prep items (commonly reported points, check in-game)</h5><div class="tbl"><table><thead><tr><th>Item</th><th>Best day</th><th>Points</th></tr></thead><tbody>${KVK_ITEMS.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td class="num">${r[2]}</td></tr>`).join("")}</tbody></table></div></div>` : "";
+    const sec = (t,arr)=> `<div><h5>${t}</h5><ul>${arr.map(x=>`<li>${x}</li>`).join("")}</ul></div>`;
+    return `<details class="ev" data-n="${ev.name}" ${openSet.includes(ev.name)?"open":""}><summary><h3>${ev.name}<span class="kind">${ev.kind}</span></h3><span class="when">${ev.when}</span><span class="chev" aria-hidden="true">▾</span></summary>
+      <div class="ev-body"><p>${ev.goal}</p>${sec("Before",ev.before)}${tbl}${sec("During",ev.during)}${sec("After",ev.after)}</div></details>`;
+  }).join("");
+  $("#eventList").querySelectorAll("details").forEach(d=>d.addEventListener("toggle",()=>{
+    const s = [...$("#eventList").querySelectorAll("details[open]")].map(x=>x.dataset.n);
+    store.set("open", s);
+  }));
+}
+
+/* ---------- spend ---------- */
+function renderSpend(){
+  const t = {f2p:"You're free to play: gems are your only premium currency, so every one should go to roulette heroes you'll use, VIP time, or a builder rental during a push.",
+             low:"As a low spender, the second builder and one monthly card give the best return. Buy event passes only when you'll finish them.",
+             mid:"As a bigger spender, put money into your rally leader's widgets and shards, and Truegold for TC levels. Still skip resource and speedup packs."};
+  $("#spendLede").textContent = t[P.spend];
+}
+
+/* ---------- snapshot ---------- */
+function renderSnap(){
+  const role = {joiner:"Mostly joins rallies",hybrid:"Mix of leading and joining",lead:"Leads rallies"}[P.role];
+  const sp = {f2p:"Free to play",low:"Low spender",mid:"Mid to high spender"}[P.spend];
+  $("#snapshot").value = `Kingshot account snapshot
+Town Center: ${tcLabel(P.tc)}
+Server age: ${P.day ? P.day+" days" : "unknown"}
+Newest hero generation on server: Gen ${P.gen}
+Rally role: ${role}
+Spending: ${sp}
+Second builder: ${P.queue==="yes"?"yes":"no"}
+Notes: ${$("#extraNotes").value || "(none)"}
+
+Please give me a tuned plan for this account.`;
+}
+$("#extraNotes").value = store.get("notes","");
+$("#extraNotes").addEventListener("input", e=>{ store.set("notes", e.target.value); renderSnap(); });
+$("#copySnap").addEventListener("click", ()=>{
+  const ta = $("#snapshot");
+  const done = ()=> $("#copyMsg").textContent = "Copied. Paste it into a chat with Claude.";
+  const fall = ()=>{ ta.focus(); ta.select(); $("#copyMsg").textContent = "Text selected. Copy it from your keyboard menu."; };
+  try{ navigator.clipboard.writeText(ta.value).then(done, fall); }catch(e){ fall(); }
+});
+
+/* ---------- views ---------- */
+const VIEWS = ["plan","heroes","build","research","gear","power","events","spend","data"];
+function show(v){
+  if(!VIEWS.includes(v)) v = "plan";
+  VIEWS.forEach(x=> $("#v-"+x).hidden = x!==v);
+  document.querySelectorAll("nav.tabs button").forEach(b=>{
+    const on = b.dataset.v===v; b.setAttribute("aria-selected", on);
+    if(on) b.scrollIntoView({block:"nearest", inline:"nearest"});
+  });
+  store.set("view", v);
+  window.scrollTo(0,0);
+}
+document.querySelector("nav.tabs").addEventListener("click", e=>{ const b=e.target.closest("button"); if(b) show(b.dataset.v); });
+
+function renderAll(){ renderPlan(); renderHeroes(); renderResearch(); renderSpend(); renderSnap(); }
+fillForm(); renderAll(); renderChecks(); renderFormations(); renderEvents();
+const h = (location.hash||"").slice(1);
+show(VIEWS.includes(h) ? h : store.get("view","plan"));
+})();
+</script>
